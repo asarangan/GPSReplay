@@ -48,7 +48,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/textView5"
         app:layout_constraintStart_toEndOf="@+id/textView5" />
 
-    <com.example.myapplication.GPSPlot
+    <com.example.myapplication.GPSTrackPlot
         android:layout_width="350dp"
         android:layout_height="350dp"
         android:id="@+id/cvGraph"

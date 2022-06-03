@@ -14,7 +14,7 @@ val green: Int = Color.rgb(0, 200, 0)
 var play:Boolean = false
 val fileFragment:FileFragment = FileFragment()
 val runFragment:RunFragment = RunFragment()
-var qq:Array<Float> = arrayOf(5F, 2F, 7F, 9F, 3F, 5F, 9F, 1F, 6F, 8F)
+//var qq:Array<Float> = arrayOf(5F, 2F, 7F, 9F, 3F, 5F, 9F, 1F, 6F, 8F)
 
 
 class MainActivity : AppCompatActivity() {

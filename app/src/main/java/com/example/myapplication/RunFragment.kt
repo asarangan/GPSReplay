@@ -1,17 +1,13 @@
 package com.example.myapplication
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import java.io.InputStream
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -45,9 +41,9 @@ class RunFragment : Fragment() {
         val playPauseButton: Button = fragmentView.findViewById<Button>(R.id.buttonPlayPause)
         val seekBar: SeekBar = fragmentView.findViewById<SeekBar>(R.id.seekBar)
         val tvPoint: TextView = fragmentView.findViewById<TextView>(R.id.tvPoint)
-        //val qq = arrayOf(8F,6F,1F,9F,5F,10F,3F,4F,7F,2F)
+        val qq = arrayOf(8F,6F,1F,9F,5F,10F,3F,4F,7F,2F)
 
-        val gpsPlot:GPSPlot = GPSPlot(fragmentView.context)
+        val gpsPlot:GPSTrackPlot = fragmentView.findViewById(R.id.cvGraph)
         gpsPlot.setData(qq)
         //gpsPlot.postInvalidate()
 

@@ -10,7 +10,7 @@ import android.util.Log
 import android.view.ContextMenu
 import android.view.View
 
-class GPSPlot : View {
+class GPSTrackPlot : View {
 
     constructor(context: Context) : super(context) {}
     constructor(context: Context,attrs:AttributeSet) : super(context,attrs) {}
@@ -97,11 +97,11 @@ class GPSPlot : View {
         mBlackPaint!!.style = Paint.Style.STROKE
         mBlackPaint!!.strokeWidth = 10f
         mPaint!!.style = Paint.Style.STROKE
-        mPaint!!.strokeWidth = 10f
+        mPaint!!.strokeWidth = 5f
         mPaint!!.color = Color.BLUE
-        drawAxis(canvas!!, mBlackPaint!!)
-        drawGraphPlotLines(canvas, mPath!!, mPaint!!)
-        drawGraphPaper(canvas, mBlackPaint!!)
+        //drawAxis(canvas!!, mBlackPaint!!)
+        drawGraphPlotLines(canvas!!, mPath!!, mPaint!!)
+        //drawGraphPaper(canvas, mBlackPaint!!)
         //drawTextOnXaxis(canvas, mBlackPaint)
         //drawTextOnYaxis(canvas, mBlackPaint)
     }
