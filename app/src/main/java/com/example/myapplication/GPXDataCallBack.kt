@@ -22,6 +22,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.security.AccessController.getContext
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
@@ -37,6 +39,7 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
         val tvStartTime: TextView = view.findViewById<TextView>(R.id.tvStartTime)
         val tvEndTime: TextView = view.findViewById<TextView>(R.id.tvEndTime)
         val tvDuration: TextView = view.findViewById<TextView>(R.id.tvDuration)
+        val tvDistance: TextView = view.findViewById<TextView>(R.id.tvDistance)
 
         if (result != null) {
             val inputStream = view.context.contentResolver.openInputStream(result)
@@ -74,6 +77,19 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
 
                         //Write duration to the view
                         tvDuration.text = "$hours Hrs $mins Mins $secs secs"
+
+                        //Calculate total distance
+                        var distance:Float = 0.0F
+                        for (i in 0 until numOfPoints) {
+                            //distance =+ sin
+                            //d=2*asin(sqrt((sin((lat1-lat2)/2))^2 +
+                            //                 cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
+                            //distance_nm=((180*60)/pi)*distance_radians 
+
+                        }
+
+
+
                     }
                     1 -> {  //1 means there was some error in the file
                         Toast.makeText(view.context, "Invalid File", Toast.LENGTH_SHORT).show()
@@ -81,6 +97,7 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                         tvNumberOfPoints.text = "-"
                         tvStartTime.text = "-"
                         tvEndTime.text = "-"
+                        tvDuration.text = "-"
                         tvDuration.text = "-"
                     }
                 }
