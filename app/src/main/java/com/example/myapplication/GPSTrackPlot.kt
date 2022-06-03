@@ -27,7 +27,7 @@ class GPSTrackPlot : View {
     private var mHeight:Float  = 0F
     private var mXUnit:Float = 0F
     private var mYUnit:Float = 0F
-    private lateinit var mBlackPaint: Paint
+    //private lateinit var mBlackPaint: Paint
     lateinit var mDataPoints:Array<Float>
 
 
@@ -46,17 +46,17 @@ class GPSTrackPlot : View {
         mYUnit = (mHeight / 12).toFloat()
         mOriginX = mXUnit
         mOriginY = mHeight - mYUnit
-        mBlackPaint = Paint()
+        //mBlackPaint = Paint()
         mIsInit = true
     }
 
-    private fun drawAxis(canvas: Canvas, paint: Paint) {
-        canvas.drawLine(mXUnit, mYUnit, mXUnit, (mHeight - 10).toFloat(), paint) //y-axis
-        canvas.drawLine(
-            10f, mHeight - mYUnit,
-            mWidth - mXUnit, mHeight - mYUnit, paint
-        ) //x-axis
-    }
+//    private fun drawAxis(canvas: Canvas, paint: Paint) {
+//        canvas.drawLine(mXUnit, mYUnit, mXUnit, (mHeight - 10).toFloat(), paint) //y-axis
+//        canvas.drawLine(
+//            10f, mHeight - mYUnit,
+//            mWidth - mXUnit, mHeight - mYUnit, paint
+//        ) //x-axis
+//    }
 
     private fun drawGraphPlotLines(canvas: Canvas, path: Path, paint: Paint) {
         var originX = mXUnit
@@ -72,20 +72,20 @@ class GPSTrackPlot : View {
         canvas.drawPath(mPath!!, paint)
     }
 
-    private fun drawGraphPaper(canvas: Canvas, blackPaint: Paint) {
-        var cx = mXUnit
-        var cy = mHeight - mYUnit
-        blackPaint.strokeWidth = 1f
-        for (i in 1..11) {
-            canvas.drawLine(cx, mYUnit, cx, cy, blackPaint)
-            cx += mXUnit
-        } //drawing points on x axis(vertical lines)
-        cx = mXUnit
-        for (i in 1..11) {
-            canvas.drawLine(cx, cy, mWidth - mXUnit, cy, blackPaint)
-            cy -= mYUnit
-        } //drawing points on y axis
-    }
+//    private fun drawGraphPaper(canvas: Canvas, blackPaint: Paint) {
+//        var cx = mXUnit
+//        var cy = mHeight - mYUnit
+//        blackPaint.strokeWidth = 1f
+//        for (i in 1..11) {
+//            canvas.drawLine(cx, mYUnit, cx, cy, blackPaint)
+//            cx += mXUnit
+//        } //drawing points on x axis(vertical lines)
+//        cx = mXUnit
+//        for (i in 1..11) {
+//            canvas.drawLine(cx, cy, mWidth - mXUnit, cy, blackPaint)
+//            cy -= mYUnit
+//        } //drawing points on y axis
+//    }
 
 
     override fun onDraw(canvas: Canvas?) {
@@ -93,9 +93,9 @@ class GPSTrackPlot : View {
         if (!mIsInit) {
             init()
         }
-        mBlackPaint!!.color = Color.BLACK
-        mBlackPaint!!.style = Paint.Style.STROKE
-        mBlackPaint!!.strokeWidth = 10f
+//        mBlackPaint!!.color = Color.BLACK
+//        mBlackPaint!!.style = Paint.Style.STROKE
+//        mBlackPaint!!.strokeWidth = 10f
         mPaint!!.style = Paint.Style.STROKE
         mPaint!!.strokeWidth = 5f
         mPaint!!.color = Color.BLUE

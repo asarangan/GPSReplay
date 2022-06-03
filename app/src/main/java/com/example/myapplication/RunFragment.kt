@@ -45,14 +45,12 @@ class RunFragment : Fragment() {
 
         val gpsPlot:GPSTrackPlot = fragmentView.findViewById(R.id.cvGraph)
         gpsPlot.setData(qq)
-        //gpsPlot.postInvalidate()
+        gpsPlot.postInvalidate()
 
 
         playPauseButton.text = "Paused"
         playPauseButton.setBackgroundColor(red)
 
-
-        //seekBar.max = fileFragment.gpxDataCallBack.numOfPoints
 
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
