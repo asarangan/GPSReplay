@@ -20,10 +20,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
+import java.lang.Math.pow
 import java.security.AccessController.getContext
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 
 class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
@@ -79,14 +79,22 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                         tvDuration.text = "$hours Hrs $mins Mins $secs secs"
 
                         //Calculate total distance
-                        var distance:Float = 0.0F
-                        for (i in 0 until numOfPoints) {
-                            //distance =+ sin
-                            //d=2*asin(sqrt((sin((lat1-lat2)/2))^2 +
-                            //                 cos(lat1)*cos(lat2)*(sin((lon1-lon2)/2))^2))
-                            //distance_nm=((180*60)/pi)*distance_radians 
-
+                        var distance:Double = 0.0
+                        var trackpoint1: Trackpoint
+                        var trackpoint2: Trackpoint
+                        var dist: Double
+                        for (i in 0 .. numOfPoints-2) {
+                            trackpoint1 = trackpoints[i]
+                            trackpoint2 = trackpoints[i+1]
+                            dist =+ 2.0*asin(sqrt(
+                                sin((trackpoint1.lat - trackpoint2.lat) / 2.0).pow(2.0) +
+                                             cos(trackpoint1.lat)*cos(trackpoint2.lat)* sin((trackpoint1.lon - trackpoint2.lon) / 2.0).pow(
+                                    2.0
+                                )
+                            ))
+                            distance+=((180.0*60.0)/ PI)*dist
                         }
+                        tvDistance.text = distance.toString()
 
 
 
