@@ -82,21 +82,28 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                         var distance:Double = 0.0
                         var trackpoint1: Trackpoint
                         var trackpoint2: Trackpoint
-                        var dist: Double
-                        for (i in 0 .. numOfPoints-2) {
+                        var dDistance: Double
+                        var lat1:Double
+                        var lat2:Double
+                        var lon1:Double
+                        var lon2:Double
+                        for (i in 0..numOfPoints - 2) {
                             trackpoint1 = trackpoints[i]
-                            trackpoint2 = trackpoints[i+1]
-                            dist =+ 2.0*asin(sqrt(
-                                sin((trackpoint1.lat - trackpoint2.lat) / 2.0).pow(2.0) +
-                                             cos(trackpoint1.lat)*cos(trackpoint2.lat)* sin((trackpoint1.lon - trackpoint2.lon) / 2.0).pow(
-                                    2.0
+                            trackpoint2 = trackpoints[i + 1]
+                            lat1 = trackpoint1.lat.toRad()
+                            lat2 = trackpoint2.lat.toRad()
+                            lon1 = trackpoint1.lon.toRad()
+                            lon2 = trackpoint2.lon.toRad()
+                            dDistance = 2.0 * asin(
+                                sqrt(
+                                    sin((lat1 - lat2) / 2.0).pow(2.0) + cos(lat1) * cos(lat2) * sin(
+                                        (lon1 - lon2) / 2.0
+                                    ).pow(2.0)
                                 )
-                            ))
-                            distance+=((180.0*60.0)/ PI)*dist
+                            ) * (180.0 * 60.0) * 1.15078/ PI
+                            distance += dDistance
                         }
-                        tvDistance.text = distance.toString()
-
-
+                        tvDistance.text = "${((distance*10.0).roundToInt()/10.0)} Statute Miles"
 
                     }
                     1 -> {  //1 means there was some error in the file
@@ -107,6 +114,7 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                         tvEndTime.text = "-"
                         tvDuration.text = "-"
                         tvDuration.text = "-"
+                        tvDistance.text = "-"
                     }
                 }
             } catch (e: IOException) {

@@ -21,33 +21,57 @@ class GPSTrackPlot : View {
     private lateinit var mPaint: Paint
     private var mIsInit: Boolean = false
     private lateinit var mPath: Path
-    private var mOriginY:Float = 0F
-    private var mOriginX:Float = 0F
+    private var originY:Float = 0F
+    private var originX:Float = 0F
+    private var xDataOffset:Float = 0F
+    private var yDataOffset:Float = 0F
+    private var xScale:Float = 0F
+    private var yScale:Float = 0F
     private var mWidth:Float = 0F
     private var mHeight:Float  = 0F
     private var mXUnit:Float = 0F
     private var mYUnit:Float = 0F
     //private lateinit var mBlackPaint: Paint
-    lateinit var mDataPoints:Array<Float>
+    lateinit var xDataPoints:FloatArray
+    lateinit var yDataPoints:FloatArray
+    var circlePoint:Int = 0
 
 
 
-    fun setData(dataPoints: Array<Float>) {
-        mDataPoints = dataPoints
+    fun setTrackData(xDataPoints: FloatArray, yDataPoints: FloatArray, circlePoint:Int) {
+        this.xDataPoints = xDataPoints
+        this.yDataPoints = yDataPoints
+        this.circlePoint = circlePoint
     }
+
 
 
     fun init() {
         mPaint = Paint()
         mPath = Path()
-        mWidth = width.toFloat()
-        mHeight = height.toFloat()
-        mXUnit = (mWidth / 12).toFloat() //for 10 plots on x axis, 2 kept for padding;
-        mYUnit = (mHeight / 12).toFloat()
-        mOriginX = mXUnit
-        mOriginY = mHeight - mYUnit
+//        mWidth = width / (xDataPoints.maxOf { it } - xDataPoints.minOf { it })
+//        mHeight = height / (yDataPoints.maxOf { it } - yDataPoints.minOf { it })
+//        mXUnit = (mWidth / 12).toFloat() //for 10 plots on x axis, 2 kept for padding;
+//        mYUnit = (mHeight / 12).toFloat()
+        xDataOffset = xDataPoints.minOf { it }
+        yDataOffset = yDataPoints.minOf { it }
+        xScale = width *0.9F/ (xDataPoints.maxOf { it } - xDataPoints.minOf { it })
+        yScale = height *0.9F/ (yDataPoints.maxOf { it } - yDataPoints.minOf { it })
+        //mYUnit = height / (yDataPoints.maxOf { it } - yDataPoints.minOf { it })
+        //originY = height.toFloat()  //This is the height in pixels. Since the axis is inverted, 0 is max
         //mBlackPaint = Paint()
-        mIsInit = true
+    }
+
+    class Pixel{
+        var x:Float = 0F
+        var y:Float = 0F
+    }
+
+    fun toPixel(x:Float,y:Float): Pixel {
+        val myPixel:Pixel = Pixel()
+        myPixel.x = (x-xDataOffset)*xScale + 0.05F*width
+        myPixel.y = height-(y-yDataOffset)*yScale - 0.05F*height
+        return myPixel
     }
 
 //    private fun drawAxis(canvas: Canvas, paint: Paint) {
@@ -59,15 +83,16 @@ class GPSTrackPlot : View {
 //    }
 
     private fun drawGraphPlotLines(canvas: Canvas, path: Path, paint: Paint) {
-        var originX = mXUnit
-        val originY = mHeight - mYUnit
-        mPath!!.moveTo(originX, originY) //shift origin to graph's origin
-        for (i in 0 until mDataPoints.size) {
-            mPath!!.lineTo(originX + mXUnit, originY - mDataPoints.get(i) * mYUnit)
-            canvas.drawCircle(
-                originX + mXUnit, originY - mDataPoints.get(i) * mYUnit, 5f, paint
-            )
-            originX += mXUnit
+        //mPath!!.reset()
+        val myPixel:Pixel = toPixel(xDataPoints[0],yDataPoints[0])
+        mPath!!.moveTo(myPixel.x,myPixel.y) //shift origin to graph's origin
+        for (i in 0 until xDataPoints.size) {
+            val myPixel:Pixel = toPixel(xDataPoints[i],yDataPoints[i])
+            mPath!!.lineTo(myPixel.x, myPixel.y)
+//            canvas.drawCircle(
+//                originX + mXUnit, originY - mDataPoints.get(i) * mYUnit, 5f, paint
+//            )
+            //originX += mXUnit
         } //end for
         canvas.drawPath(mPath!!, paint)
     }
@@ -90,19 +115,23 @@ class GPSTrackPlot : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (!mIsInit) {
             init()
-        }
+
 //        mBlackPaint!!.color = Color.BLACK
 //        mBlackPaint!!.style = Paint.Style.STROKE
 //        mBlackPaint!!.strokeWidth = 10f
-        mPaint!!.style = Paint.Style.STROKE
-        mPaint!!.strokeWidth = 5f
-        mPaint!!.color = Color.BLUE
-        //drawAxis(canvas!!, mBlackPaint!!)
-        drawGraphPlotLines(canvas!!, mPath!!, mPaint!!)
-        //drawGraphPaper(canvas, mBlackPaint!!)
-        //drawTextOnXaxis(canvas, mBlackPaint)
-        //drawTextOnYaxis(canvas, mBlackPaint)
+            mPaint!!.style = Paint.Style.STROKE
+            mPaint!!.strokeWidth = 5f
+            mPaint!!.color = Color.BLUE
+            //drawAxis(canvas!!, mBlackPaint!!)
+            drawGraphPlotLines(canvas!!, mPath!!, mPaint!!)
+            //drawGraphPaper(canvas, mBlackPaint!!)
+            //drawTextOnXaxis(canvas, mBlackPaint)
+            //drawTextOnYaxis(canvas, mBlackPaint)
+            val myPixel:Pixel = toPixel(xDataPoints[circlePoint],yDataPoints[circlePoint])
+            mPaint!!.color = Color.RED
+            mPaint.setStyle(Paint.Style.FILL)
+            canvas!!.drawCircle(myPixel.x,myPixel.y,10F,mPaint)
+        }
     }
-}
+

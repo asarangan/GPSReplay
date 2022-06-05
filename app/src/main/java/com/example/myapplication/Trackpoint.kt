@@ -12,8 +12,12 @@ class Trackpoint {
     var bearing: Float = 0.0F
 }
 
-fun Double.toKts(): Double {
-    return (this * 19.4384).toInt() / 10.0
+fun Float.toKts(): Float {
+    return ((this * 19.4384).toInt() / 10.0).toFloat()
+}
+
+fun Float.toMph(): Float{
+    return ((this * 22.3694).toInt() / 10.0).toFloat()
 }
 
 fun Double.toRad(): Double {

@@ -23,6 +23,7 @@ class RunFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private lateinit var runFragmentView:View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,33 +33,64 @@ class RunFragment : Fragment() {
         }
     }
 
+    fun newTrackPlot(circlePoint: Int){
+        val gpsPlot:GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
+        val qqx:ArrayList<Float> = ArrayList<Float>()
+        val qqy:ArrayList<Float> = ArrayList<Float>()
+
+        if (fileFragment.gpxDataCallBack.numOfPoints > 0){
+            for (i in 0 until fileFragment.gpxDataCallBack.numOfPoints ){
+                qqx.add(fileFragment.gpxDataCallBack.trackpoints[i].lon.toFloat())
+                qqy.add(fileFragment.gpxDataCallBack.trackpoints[i].lat.toFloat())
+            }
+        }
+        else{
+            qqx.add(0F)
+            qqx.add(0F)
+            qqy.add(0F)
+            qqy.add(0F)
+        }
+        val qqx1 = qqx.toFloatArray()
+        val qqy1 = qqy.toFloatArray()
+        gpsPlot.setTrackData(qqx1,qqy1,circlePoint)
+        gpsPlot.postInvalidate()
+    }
+
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView:View = inflater.inflate(R.layout.fragment_run, container, false)
-        val playPauseButton: Button = fragmentView.findViewById<Button>(R.id.buttonPlayPause)
-        val seekBar: SeekBar = fragmentView.findViewById<SeekBar>(R.id.seekBar)
-        val tvPoint: TextView = fragmentView.findViewById<TextView>(R.id.tvPoint)
-        val qq = arrayOf(8F,6F,1F,9F,5F,10F,3F,4F,7F,2F)
-
-        val gpsPlot:GPSTrackPlot = fragmentView.findViewById(R.id.cvGraph)
-        gpsPlot.setData(qq)
-        gpsPlot.postInvalidate()
-
+        runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
+        val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
+        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+        val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
+        val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
 
         playPauseButton.text = "Paused"
         playPauseButton.setBackgroundColor(red)
-
-
+        newTrackPlot(0)
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2){    //If the seekbar change was caused by screen input (instead of by code)
                     play = false     //put the system on pause
                     tvPoint.text = p1.toString()
+                    if (fileFragment.gpxDataCallBack.numOfPoints > 0) {
+                        tvAltitude.text =
+                            fileFragment.gpxDataCallBack.trackpoints[p1].altitude.toFt().toString()
+                        tvSpeed.text = fileFragment.gpxDataCallBack.trackpoints[p1].speed.toMph().toString()
+                    }
+                    else{
+                        tvAltitude.text = "-"
+                        tvSpeed.text = "-"
+                    }
 
+                    newTrackPlot(p1)
                     }
                 }
 
@@ -72,9 +104,7 @@ class RunFragment : Fragment() {
             }
         })
 
-        
-
-        return fragmentView
+        return runFragmentView
     }
 
     companion object {

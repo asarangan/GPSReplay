@@ -1,15 +1,12 @@
 package com.example.myapplication
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import java.io.InputStream
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,19 +38,19 @@ class FileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
+        val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 
         //This is for reading the external file
         val getContent:ActivityResultContracts.GetContent = ActivityResultContracts.GetContent()
-        gpxDataCallBack = GPXDataCallBack(fragmentView)
+        gpxDataCallBack = GPXDataCallBack(fileFragmentView)
         val getContentActivity =  registerForActivityResult(getContent,gpxDataCallBack)
 
-        val gpxButton:Button = fragmentView.findViewById<Button>(R.id.gpxButton)
+        val gpxButton:Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
         gpxButton.setOnClickListener {
             getContentActivity.launch("*/*")
         }
 
-        return fragmentView
+        return fileFragmentView
     }
 
     companion object {

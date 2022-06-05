@@ -2,7 +2,6 @@ package com.example.myapplication
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +13,6 @@ val green: Int = Color.rgb(0, 200, 0)
 var play:Boolean = false
 val fileFragment:FileFragment = FileFragment()
 val runFragment:RunFragment = RunFragment()
-//var qq:Array<Float> = arrayOf(5F, 2F, 7F, 9F, 3F, 5F, 9F, 1F, 6F, 8F)
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +33,8 @@ class MainActivity : AppCompatActivity() {
                     setFragment(runFragment, fileFragment)
                 }
                 R.id.itemRun -> {
-                    findViewById<SeekBar>(R.id.seekBar).max = fileFragment.gpxDataCallBack.numOfPoints
+                    runFragment.newTrackPlot(0)
+                    findViewById<SeekBar>(R.id.seekBar).max = fileFragment.gpxDataCallBack.numOfPoints-1
                     if (fileFragment.gpxDataCallBack.code == 1) {
                         findViewById<TextView>(R.id.tvPoint).text = "0"
                     }
