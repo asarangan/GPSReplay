@@ -8,7 +8,8 @@ import android.widget.TextView
 import androidx.annotation.MainThread
 import com.google.android.material.internal.ContextUtils.getActivity
 
-class TrackPlay : Service() {
+class TrackPlayService : Service() {
+    var play:Boolean = true
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -18,12 +19,12 @@ class TrackPlay : Service() {
 
         Thread (Runnable() {
             while (true) {
-//                if ((play)&&(runFragment.currentPoint < fileFragment.gpxDataCallBack.numOfPoints)) {
-//                    Log.d("TEST", (System.currentTimeMillis()/1000).toString())
-//                    Thread.sleep(1000)
+                if ((play)) {
+                    Log.d("Service", (System.currentTimeMillis()/1000).toString())
+                    Thread.sleep(1000)
 //                    runFragment.currentPoint++
 //                    runFragment.updatePointIndex(runFragment.currentPoint)
-//                }
+                }
             }
         }).start()
 

@@ -24,7 +24,6 @@ class FileFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    var currentPoint:Int = 0
     var play:Boolean = false
     lateinit var gpxDataCallBack:GPXDataCallBack
 
@@ -55,7 +54,6 @@ class FileFragment : Fragment() {
         gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
             play = false
-            currentPoint = 0
         }
 
         return fileFragmentView

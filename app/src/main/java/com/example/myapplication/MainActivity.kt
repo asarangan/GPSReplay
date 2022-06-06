@@ -2,10 +2,12 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -15,6 +17,7 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
     private val runFragment:RunFragment = RunFragment()     //RunFragment has no variables in the main section, so nothing inside the fragment will be instantiated.
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {    //The onCreate of the main Activity runs only once. But it will run again when brought into focus from a minimized state.
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)              //This inflates the layout
@@ -41,11 +44,17 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
                     runFragment.numOfPoints = fileFragment.gpxDataCallBack.numOfPoints
                     if (runFragment.numOfPoints > 0) {  //If points are zero, then most likely no file has been read. Calling trackpoints will crash because gpsDataCallBack would be uninitiated.
                         runFragment.trackpoints = fileFragment.gpxDataCallBack.trackpoints
-                        findViewById<SeekBar>(R.id.seekBar).max = runFragment.numOfPoints-1
-
+                        findViewById<SeekBar>(R.id.seekBar).max = runFragment.numOfPoints - 1
                     }
-                    runFragment.newTrackPlot(runFragment.currentPoint) //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
-                    //runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
+                    else {
+                        findViewById<SeekBar>(R.id.seekBar).max = 0
+                        runFragment.currentPoint = 0
+                        findViewById<TextView>(R.id.tvPoint).text = "-"
+                        findViewById<TextView>(R.id.tvAltitude).text = "-"
+                        findViewById<TextView>(R.id.tvSpeed).text = "-"
+                    }
+                        runFragment.newTrackPlot() //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
+                        //runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
                     setFragment(fileFragment,runFragment)
                 }
             }
@@ -53,9 +62,11 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         }
 
 
-//        val trackPlayIntent: Intent = Intent(this,TrackPlay::class.java)
-//        startService(trackPlayIntent)
-}
+        val trackPlayServiceIntent: Intent = Intent(this,TrackPlayService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(trackPlayServiceIntent)
+        }
+    }
 
 
     private fun setFragment(fragment1: Fragment, fragment2: Fragment){

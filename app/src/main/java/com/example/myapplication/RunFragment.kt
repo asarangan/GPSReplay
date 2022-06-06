@@ -32,6 +32,10 @@ class RunFragment : Fragment() {
     var play:Boolean = false
     var currentPoint:Int = 0
     lateinit var gpsPlot:GPSTrackPlot
+    lateinit var tvPoint: TextView
+    lateinit var tvAltitude: TextView
+    lateinit var tvSpeed: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +45,7 @@ class RunFragment : Fragment() {
         }
     }
 
-    fun newTrackPlot(circlePoint: Int){
+    fun newTrackPlot(){
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
         val qqx:ArrayList<Float> = ArrayList<Float>()
         val qqy:ArrayList<Float> = ArrayList<Float>()
@@ -51,6 +55,9 @@ class RunFragment : Fragment() {
                 qqx.add(trackpoints[i].lon.toFloat())
                 qqy.add(trackpoints[i].lat.toFloat())
             }
+            tvPoint.text = currentPoint.toString()
+            tvAltitude.text = trackpoints[currentPoint].altitude.toFt().toString()
+            tvSpeed.text = trackpoints[currentPoint].speed.toMph().toString()
         }
         else{
             qqx.add(0F)
@@ -58,12 +65,10 @@ class RunFragment : Fragment() {
             qqy.add(0F)
             qqy.add(0F)
         }
-        //val qqx1 = qqx.toFloatArray()
-        //val qqy1 = qqy.toFloatArray()
-        //Log.d("TEST","Line 62")
+
         gpsPlot.setTrackData(qqx,qqy)
         gpsPlot.makeBitmap = true
-        gpsPlot.setCirclePoint(0)
+        gpsPlot.setCirclePoint(currentPoint)
         gpsPlot.postInvalidate()
     }
 
@@ -89,14 +94,14 @@ class RunFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        //Log.d("TEST", "RunFragment OnCreateView")
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
-        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
-        val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
-        val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
+        tvPoint = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+        tvAltitude = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
+        tvSpeed = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
+
 
         playPauseButtonColor()
         //newTrackPlot(currentPoint)
@@ -113,6 +118,7 @@ class RunFragment : Fragment() {
                     play = false     //put the player on pause
                     playPauseButtonColor()
                     tvPoint.text = p1.toString()
+                    currentPoint = p1
                     if (numOfPoints > 0) {
                         tvAltitude.text =
                             trackpoints[p1].altitude.toFt().toString()
