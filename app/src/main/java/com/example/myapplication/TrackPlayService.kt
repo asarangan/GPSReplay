@@ -20,7 +20,7 @@ class TrackPlayService : Service() {
         Thread (Runnable() {
             while (true) {
                 if ((play)) {
-                    Log.d("Service", (System.currentTimeMillis()/1000).toString())
+                    Log.d("GPS", (System.currentTimeMillis()/1000).toString())
                     Thread.sleep(1000)
 //                    runFragment.currentPoint++
 //                    runFragment.updatePointIndex(runFragment.currentPoint)

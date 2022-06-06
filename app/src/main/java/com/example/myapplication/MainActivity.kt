@@ -15,9 +15,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {                  //Main Activity is a class, not a variable. It is instantiated by the system.
     private val fileFragment:FileFragment = FileFragment()  //Only the variables in the main section of the fragment would be instantiated. The gpxDataCallBack will be uninitialized. OnCreate would not run.
     private val runFragment:RunFragment = RunFragment()     //RunFragment has no variables in the main section, so nothing inside the fragment will be instantiated.
+    private lateinit var trackPlayServiceIntent: Intent
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {    //The onCreate of the main Activity runs only once. But it will run again when brought into focus from a minimized state.
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)              //This inflates the layout
@@ -62,11 +61,18 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         }
 
 
-        val trackPlayServiceIntent: Intent = Intent(this,TrackPlayService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(trackPlayServiceIntent)
-        }
+        trackPlayServiceIntent = Intent(this,TrackPlayService::class.java)
+            startService(trackPlayServiceIntent)
+        Log.d("GPS", "Service Started")
     }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(trackPlayServiceIntent)
+        Log.d("GPS", "Service Stopped")
+    }
+
 
 
     private fun setFragment(fragment1: Fragment, fragment2: Fragment){
