@@ -13,8 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-var currentPoint:Int = 0
-var play:Boolean = false
+
 
 /**
  * A simple [Fragment] subclass.
@@ -25,6 +24,8 @@ class FileFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    var currentPoint:Int = 0
+    var play:Boolean = false
     lateinit var gpxDataCallBack:GPXDataCallBack
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,7 @@ class FileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        Log.d("TEST","FileFragment OnCreateView")
+        //Log.d("TEST","FileFragment OnCreateView")
         // Inflate the layout for this fragment
         val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 

@@ -34,7 +34,6 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
 
 
     override fun onActivityResult(result: Uri?) {
-        play = false
         val tvNumberOfPoints: TextView = view.findViewById<TextView>(R.id.tvNumberOfPoints)
         val tvStartTime: TextView = view.findViewById<TextView>(R.id.tvStartTime)
         val tvEndTime: TextView = view.findViewById<TextView>(R.id.tvEndTime)

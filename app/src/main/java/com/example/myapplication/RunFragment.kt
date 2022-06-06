@@ -30,6 +30,7 @@ class RunFragment : Fragment() {
     lateinit var trackpoints: List<Trackpoint>
     var numOfPoints = 0
     var currentPoint:Int = 0
+    var play:Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +85,7 @@ class RunFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("TEST", "RunFragment OnCreateView")
+        //Log.d("TEST", "RunFragment OnCreateView")
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
@@ -108,6 +109,7 @@ class RunFragment : Fragment() {
                     play = false     //put the player on pause
                     playPauseButtonColor()
                     tvPoint.text = p1.toString()
+                    currentPoint = p1
                     if (numOfPoints > 0) {
                         tvAltitude.text =
                             trackpoints[p1].altitude.toFt().toString()
