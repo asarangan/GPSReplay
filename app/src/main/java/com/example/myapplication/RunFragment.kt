@@ -29,8 +29,9 @@ class RunFragment : Fragment() {
     private lateinit var runFragmentView:View
     lateinit var trackpoints: List<Trackpoint>
     var numOfPoints = 0
-    var currentPoint:Int = 0
     var play:Boolean = false
+    var currentPoint:Int = 0
+    lateinit var gpsPlot:GPSTrackPlot
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +42,7 @@ class RunFragment : Fragment() {
     }
 
     fun newTrackPlot(circlePoint: Int){
-        val gpsPlot:GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
+        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
         val qqx:ArrayList<Float> = ArrayList<Float>()
         val qqy:ArrayList<Float> = ArrayList<Float>()
 
@@ -57,9 +58,12 @@ class RunFragment : Fragment() {
             qqy.add(0F)
             qqy.add(0F)
         }
-        val qqx1 = qqx.toFloatArray()
-        val qqy1 = qqy.toFloatArray()
-        gpsPlot.setTrackData(qqx1,qqy1,circlePoint)
+        //val qqx1 = qqx.toFloatArray()
+        //val qqy1 = qqy.toFloatArray()
+        //Log.d("TEST","Line 62")
+        gpsPlot.setTrackData(qqx,qqy)
+        gpsPlot.makeBitmap = true
+        gpsPlot.setCirclePoint(0)
         gpsPlot.postInvalidate()
     }
 
@@ -109,7 +113,6 @@ class RunFragment : Fragment() {
                     play = false     //put the player on pause
                     playPauseButtonColor()
                     tvPoint.text = p1.toString()
-                    currentPoint = p1
                     if (numOfPoints > 0) {
                         tvAltitude.text =
                             trackpoints[p1].altitude.toFt().toString()
@@ -119,7 +122,8 @@ class RunFragment : Fragment() {
                         tvAltitude.text = "-"
                         tvSpeed.text = "-"
                     }
-                    newTrackPlot(p1)
+                    gpsPlot.setCirclePoint(p1)
+                    gpsPlot.postInvalidate()
                     }
                 }
 

@@ -1,13 +1,11 @@
 package com.example.myapplication
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+
 
 class GPSTrackPlot : View {
 
@@ -31,24 +29,40 @@ class GPSTrackPlot : View {
     private var yDataOffset:Float = 0F
     private var xScale:Float = 0F
     private var yScale:Float = 0F
-    lateinit var xDataPoints:FloatArray
-    lateinit var yDataPoints:FloatArray
+    lateinit var xDataPoints:ArrayList<Float>
+    lateinit var yDataPoints:ArrayList<Float>
     private var circlePoint:Int = 0
     private var circleRadius:Float = 0F
+    lateinit var bitmap_object:Bitmap
+    var makeBitmap:Boolean = false
 
-    fun setTrackData(xDataPoints: FloatArray, yDataPoints: FloatArray, circlePoint:Int) {
+
+    fun setTrackData(xDataPoints: ArrayList<Float>, yDataPoints: ArrayList<Float>) {
         this.xDataPoints = xDataPoints
         this.yDataPoints = yDataPoints
         this.circlePoint = circlePoint
     }
 
-    fun init() {
+    fun setCirclePoint(i:Int){
+        circlePoint = i
+    }
+
+    fun makeBitmap() {
+        bitmap_object = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         trackPath = Path()
         xDataOffset = xDataPoints.minOf { it }
         yDataOffset = yDataPoints.minOf { it }
         xScale = width *0.9F/ (xDataPoints.maxOf { it } - xDataPoints.minOf { it })
         yScale = height *0.9F/ (yDataPoints.maxOf { it } - yDataPoints.minOf { it })
-        circleRadius = height/100F
+
+        val canvas = Canvas(bitmap_object)
+        val myPixel:Pixel = toPixel(xDataPoints[0],yDataPoints[0])
+        trackPath!!.moveTo(myPixel.x,myPixel.y) //shift origin to graph's origin
+        for (i in 0 until xDataPoints.size) {
+            val myPixel:Pixel = toPixel(xDataPoints[i],yDataPoints[i])
+            trackPath.lineTo(myPixel.x, myPixel.y)
+        }
+        canvas.drawPath(trackPath, trackPaint)
     }
 
     class Pixel{
@@ -75,8 +89,12 @@ class GPSTrackPlot : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-            init()
-            drawGraphPlotLines(canvas!!, trackPath, trackPaint)
+        if (makeBitmap){
+            makeBitmap()
+            circleRadius = height/100F  //This has to be set here because height and width become valid only in onDraw
+            canvas?.setBitmap(bitmap_object)
+        }
+
             val myPixel:Pixel = toPixel(xDataPoints[circlePoint],yDataPoints[circlePoint])
             canvas!!.drawCircle(myPixel.x,myPixel.y,circleRadius,circlePaint)
         }
