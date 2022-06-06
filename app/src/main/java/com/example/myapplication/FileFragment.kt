@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+var currentPoint:Int = 0
+var play:Boolean = false
 
 /**
  * A simple [Fragment] subclass.
@@ -37,6 +40,8 @@ class FileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        Log.d("TEST","FileFragment OnCreateView")
         // Inflate the layout for this fragment
         val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 
@@ -45,9 +50,11 @@ class FileFragment : Fragment() {
         gpxDataCallBack = GPXDataCallBack(fileFragmentView)
         val getContentActivity =  registerForActivityResult(getContent,gpxDataCallBack)
 
-        val gpxButton:Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
-        gpxButton.setOnClickListener {
+        val gpxReadFileButton:Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
+        gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
+            play = false
+            currentPoint = 0
         }
 
         return fileFragmentView

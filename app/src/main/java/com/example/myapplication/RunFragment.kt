@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,6 +26,9 @@ class RunFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var runFragmentView:View
+    lateinit var trackpoints: List<Trackpoint>
+    var numOfPoints = 0
+    var currentPoint:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +43,10 @@ class RunFragment : Fragment() {
         val qqx:ArrayList<Float> = ArrayList<Float>()
         val qqy:ArrayList<Float> = ArrayList<Float>()
 
-        if (fileFragment.gpxDataCallBack.numOfPoints > 0){
-            for (i in 0 until fileFragment.gpxDataCallBack.numOfPoints ){
-                qqx.add(fileFragment.gpxDataCallBack.trackpoints[i].lon.toFloat())
-                qqy.add(fileFragment.gpxDataCallBack.trackpoints[i].lat.toFloat())
+        if (numOfPoints > 0){
+            for (i in 0 until numOfPoints ){
+                qqx.add(trackpoints[i].lon.toFloat())
+                qqy.add(trackpoints[i].lat.toFloat())
             }
         }
         else{
@@ -56,7 +61,22 @@ class RunFragment : Fragment() {
         gpsPlot.postInvalidate()
     }
 
+    fun playPauseButtonColor(){
+        val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        if (play){
+            playPauseButton.text = "Playing"
+            playPauseButton.setBackgroundColor(ContextCompat.getColor(runFragmentView.context,R.color.myGreen))
+        }
+        else{
+            playPauseButton.text = "Paused"
+            playPauseButton.setBackgroundColor(ContextCompat.getColor(runFragmentView.context,R.color.myRed))
+        }
+    }
 
+    fun updatePointIndex(i:Int){
+        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+        tvPoint.text = i.toString()
+    }
 
 
     override fun onCreateView(
@@ -71,25 +91,30 @@ class RunFragment : Fragment() {
         val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
 
-        playPauseButton.text = "Paused"
-        playPauseButton.setBackgroundColor(red)
-        newTrackPlot(0)
+
+        playPauseButtonColor()
+        newTrackPlot(currentPoint)
+
+
+        playPauseButton.setOnClickListener {
+            play = !play
+            playPauseButtonColor()
+        }
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2){    //If the seekbar change was caused by screen input (instead of by code)
-                    play = false     //put the system on pause
+                    play = false     //put the player on pause
                     tvPoint.text = p1.toString()
-                    if (fileFragment.gpxDataCallBack.numOfPoints > 0) {
+                    if (numOfPoints > 0) {
                         tvAltitude.text =
-                            fileFragment.gpxDataCallBack.trackpoints[p1].altitude.toFt().toString()
-                        tvSpeed.text = fileFragment.gpxDataCallBack.trackpoints[p1].speed.toMph().toString()
+                            trackpoints[p1].altitude.toFt().toString()
+                        tvSpeed.text = trackpoints[p1].speed.toMph().toString()
                     }
                     else{
                         tvAltitude.text = "-"
                         tvSpeed.text = "-"
                     }
-
                     newTrackPlot(p1)
                     }
                 }
