@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -83,6 +84,7 @@ class RunFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("TEST", "RunFragment OnCreateView")
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
@@ -91,9 +93,8 @@ class RunFragment : Fragment() {
         val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
 
-
         playPauseButtonColor()
-        newTrackPlot(currentPoint)
+        //newTrackPlot(currentPoint)
 
 
         playPauseButton.setOnClickListener {
@@ -105,6 +106,7 @@ class RunFragment : Fragment() {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2){    //If the seekbar change was caused by screen input (instead of by code)
                     play = false     //put the player on pause
+                    playPauseButtonColor()
                     tvPoint.text = p1.toString()
                     if (numOfPoints > 0) {
                         tvAltitude.text =

@@ -37,7 +37,10 @@ class MainActivity : AppCompatActivity() {
                     runFragment.numOfPoints = fileFragment.gpxDataCallBack.numOfPoints
                     if (runFragment.numOfPoints > 0) {
                         runFragment.trackpoints = fileFragment.gpxDataCallBack.trackpoints
+                        findViewById<SeekBar>(R.id.seekBar).max = runFragment.numOfPoints-1
+
                     }
+                    runFragment.newTrackPlot(0)
                     setFragment(fileFragment,runFragment)
                 }
             }
