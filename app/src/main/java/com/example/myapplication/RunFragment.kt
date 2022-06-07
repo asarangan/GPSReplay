@@ -22,7 +22,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [RunFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class RunFragment : Fragment() {
+class RunFragment() : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -110,6 +110,7 @@ class RunFragment : Fragment() {
         playPauseButton.setOnClickListener {
             play = !play
             playPauseButtonColor()
+           trackPlayService.play = play
         }
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{

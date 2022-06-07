@@ -1,9 +1,14 @@
 package com.example.myapplication
 
+import android.app.Service
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.TextView
@@ -11,11 +16,27 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+lateinit var trackPlayService: TrackPlayService
+
 
 class MainActivity : AppCompatActivity() {                  //Main Activity is a class, not a variable. It is instantiated by the system.
+
     private val fileFragment:FileFragment = FileFragment()  //Only the variables in the main section of the fragment would be instantiated. The gpxDataCallBack will be uninitialized. OnCreate would not run.
     private val runFragment:RunFragment = RunFragment()     //RunFragment has no variables in the main section, so nothing inside the fragment will be instantiated.
-    private lateinit var trackPlayServiceIntent: Intent
+
+
+    private val serviceConnection: ServiceConnection = object: ServiceConnection{
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            Log.d("GPS","onServiceConnected")
+            trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
+            trackPlayService.startLoop()
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            Log.d("GPS","onServiceDisconnected")
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {    //The onCreate of the main Activity runs only once. But it will run again when brought into focus from a minimized state.
         super.onCreate(savedInstanceState)
@@ -61,15 +82,18 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         }
 
 
-        trackPlayServiceIntent = Intent(this,TrackPlayService::class.java)
-            startService(trackPlayServiceIntent)
-        Log.d("GPS", "Service Started")
+       val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
+        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
+//            startService(trackPlayServiceIntent)
+//        Log.d("GPS", "Service Started")
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        stopService(trackPlayServiceIntent)
+//        stopService(trackPlayServiceIntent)
+        unbindService(serviceConnection)
         Log.d("GPS", "Service Stopped")
     }
 
