@@ -1,7 +1,11 @@
 package com.example.myapplication
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -35,6 +39,8 @@ class RunFragment() : Fragment() {
     lateinit var tvPoint: TextView
     lateinit var tvAltitude: TextView
     lateinit var tvSpeed: TextView
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,11 +112,10 @@ class RunFragment() : Fragment() {
         playPauseButtonColor()
         //newTrackPlot(currentPoint)
 
-
         playPauseButton.setOnClickListener {
             play = !play
             playPauseButtonColor()
-           trackPlayService.play = play
+            trackPlayService.play = play
         }
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{

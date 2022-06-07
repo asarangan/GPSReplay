@@ -1,21 +1,18 @@
 package com.example.myapplication
 
-import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+
 lateinit var trackPlayService: TrackPlayService
 
 
@@ -24,8 +21,7 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
     private val fileFragment:FileFragment = FileFragment()  //Only the variables in the main section of the fragment would be instantiated. The gpxDataCallBack will be uninitialized. OnCreate would not run.
     private val runFragment:RunFragment = RunFragment()     //RunFragment has no variables in the main section, so nothing inside the fragment will be instantiated.
 
-
-    private val serviceConnection: ServiceConnection = object: ServiceConnection{
+    private val serviceConnection: ServiceConnection = object: ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
             Log.d("GPS","onServiceConnected")
             trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
@@ -38,9 +34,14 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
     }
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {    //The onCreate of the main Activity runs only once. But it will run again when brought into focus from a minimized state.
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)              //This inflates the layout
+
+        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
+        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
 
         supportFragmentManager.beginTransaction().apply {
             add(R.id.frameLayout, fileFragment)             //Adding the frames does not call onCreateView of the fragment. onCreateView will be called after the onCreate (of the Main Activity) exits.
@@ -82,8 +83,7 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         }
 
 
-       val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
-        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
 
 //            startService(trackPlayServiceIntent)
 //        Log.d("GPS", "Service Started")
