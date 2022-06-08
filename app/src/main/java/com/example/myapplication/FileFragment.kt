@@ -30,9 +30,11 @@ class FileFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    var play:Boolean = false
-    var currentPoint:Int = 0
-    lateinit var gpxDataCallBack:GPXDataCallBack
+    var data:Data = Data()
+
+    fun xferData(data:Data){
+        this.data = data
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,18 +58,19 @@ class FileFragment : Fragment() {
         val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 
         //This is for reading the external file
-        val getContent:ActivityResultContracts.GetContent = ActivityResultContracts.GetContent()
-        gpxDataCallBack = GPXDataCallBack(fileFragmentView)
-        val getContentActivity =  registerForActivityResult(getContent,gpxDataCallBack)
+        val getContentActivity =  registerForActivityResult(ActivityResultContracts.GetContent(),GPXDataCallBack(fileFragmentView))
 
         val gpxReadFileButton:Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
         gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
-            play = false
-            currentPoint = 0
         }
 
         return fileFragmentView
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        this.data = data
     }
 
     override fun onDestroyView() {

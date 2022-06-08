@@ -28,6 +28,7 @@ import kotlin.math.*
 
 class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
 
+    var data:Data = Data()
     var numOfPoints:Int = 0
     var code:Int = 0
     open lateinit var trackpoints: List<Trackpoint>
