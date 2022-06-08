@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+
+
 val TAG:String = "GPS"
 
 class MainActivity : AppCompatActivity() {                  //Main Activity is a class, not a variable. It is instantiated by the system.
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)              //This inflates the layout
+
+        var data:Data = Data()
 
 
         supportFragmentManager.beginTransaction().apply {
