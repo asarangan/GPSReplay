@@ -1,6 +1,11 @@
 package com.example.myapplication
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -21,13 +26,17 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class FileFragment : Fragment() {
+
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     var play:Boolean = false
+    var currentPoint:Int = 0
     lateinit var gpxDataCallBack:GPXDataCallBack
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG,"FileFragment OnCreate")
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
@@ -40,8 +49,9 @@ class FileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(TAG,"FileFragment OnCreateView")
+        super.onCreateView(inflater, container, savedInstanceState)
 
-        //Log.d("TEST","FileFragment OnCreateView")
         // Inflate the layout for this fragment
         val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 
@@ -54,9 +64,15 @@ class FileFragment : Fragment() {
         gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
             play = false
+            currentPoint = 0
         }
 
         return fileFragmentView
+    }
+
+    override fun onDestroyView() {
+        Log.d(TAG,"FileFragment OnDestroyView")
+        super.onDestroyView()
     }
 
     companion object {

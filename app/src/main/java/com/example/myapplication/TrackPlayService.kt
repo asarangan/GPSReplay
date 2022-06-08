@@ -11,6 +11,9 @@ import com.google.android.material.internal.ContextUtils.getActivity
 
 class TrackPlayService : Service() {
     var play: Boolean = false
+    lateinit var trackpoints: List<Trackpoint>
+    var currentPoint:Int = 0
+    var numOfPoints:Int = 0
 
     inner class TrackPlayServiceBinder : Binder() {
         fun getService(): TrackPlayService {
@@ -42,12 +45,13 @@ class TrackPlayService : Service() {
 //        return START_STICKY
 //    }
 
-    fun startLoop() {
+    fun startPlayLoop() {
         Thread {
             while (true) {
                 if (play) {
-                    Log.d("GPS", (System.currentTimeMillis() / 1000).toString())
+                    Log.d(TAG,currentPoint.toString())
                     Thread.sleep(1000)
+                    currentPoint++
                 }
             }
         }.start()

@@ -39,11 +39,25 @@ class RunFragment() : Fragment() {
     lateinit var tvPoint: TextView
     lateinit var tvAltitude: TextView
     lateinit var tvSpeed: TextView
+    lateinit var trackPlayService: TrackPlayService
+
+    private val serviceConnection: ServiceConnection = object: ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            Log.d(TAG,"onServiceConnected")
+            trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
+            trackPlayService.startPlayLoop()
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            Log.d(TAG,"onServiceDisconnected")
+        }
+    }
 
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG,"RunFragment OnCreate")
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
@@ -79,6 +93,7 @@ class RunFragment() : Fragment() {
     }
 
     fun playPauseButtonColor(){
+        //trackPlayService.play = play
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         if (play){
             playPauseButton.text = "Playing"
@@ -100,6 +115,9 @@ class RunFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(TAG,"RunFragment OnCreateView")
+        super.onCreateView(inflater, container, savedInstanceState)
+
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
@@ -108,14 +126,21 @@ class RunFragment() : Fragment() {
         tvAltitude = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         tvSpeed = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
 
+        val trackPlayServiceIntent: Intent = Intent(runFragmentView.context,TrackPlayService::class.java)
+        getActivity()?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
         playPauseButtonColor()
         //newTrackPlot(currentPoint)
 
         playPauseButton.setOnClickListener {
-            play = !play
-            playPauseButtonColor()
-            trackPlayService.play = play
+            if (numOfPoints>0) {
+                play = !play
+                trackPlayService.numOfPoints = numOfPoints
+                trackPlayService.trackpoints = trackpoints
+                trackPlayService.play = play
+                trackPlayService.currentPoint = currentPoint
+                playPauseButtonColor()
+            }
         }
 
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
@@ -129,6 +154,8 @@ class RunFragment() : Fragment() {
                         tvAltitude.text =
                             trackpoints[p1].altitude.toFt().toString()
                         tvSpeed.text = trackpoints[p1].speed.toMph().toString()
+                        trackPlayService.play = play
+                        trackPlayService.currentPoint = currentPoint
                     }
                     else{
                         tvAltitude.text = "-"
@@ -151,6 +178,13 @@ class RunFragment() : Fragment() {
 
         return runFragmentView
     }
+
+    override fun onDestroyView() {
+        Log.d(TAG,"RunFragment OnDestroyView")
+        super.onDestroyView()
+        MainActivity().unbindService(serviceConnection)
+    }
+
 
     companion object {
         /**
