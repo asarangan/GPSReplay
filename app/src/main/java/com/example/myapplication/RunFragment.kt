@@ -47,23 +47,23 @@ class RunFragment(val data:Data) : Fragment() {
 
     fun newTrackPlot(){
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
-        val qqx:ArrayList<Float> = ArrayList<Float>()
-        val qqy:ArrayList<Float> = ArrayList<Float>()
+//        val qqx:ArrayList<Float> = ArrayList<Float>()
+//        val qqy:ArrayList<Float> = ArrayList<Float>()
 
-        if (data.numOfPoints > 0){
-            for (i in 0 until data.numOfPoints ){
-                qqx.add(data.trackpoints[i].lon.toFloat())
-                qqy.add(data.trackpoints[i].lat.toFloat())
-            }
-        }
-        else{
-            qqx.add(0F)
-            qqx.add(0F)
-            qqy.add(0F)
-            qqy.add(0F)
-        }
+//        if (data.numOfPoints > 0){
+//            for (i in 0 until data.numOfPoints ){
+//                qqx.add(data.trackpoints[i].lon.toFloat())
+//                qqy.add(data.trackpoints[i].lat.toFloat())
+//            }
+//        }
+//        else{
+//            qqx.add(0F)
+//            qqx.add(0F)
+//            qqy.add(0F)
+//            qqy.add(0F)
+//        }
 
-        gpsPlot.setTrackData(qqx,qqy)
+        gpsPlot.setTrackData(data)
         gpsPlot.makeBitmap = true
         gpsPlot.setCirclePoint(data.currentPoint)
         gpsPlot.postInvalidate()
