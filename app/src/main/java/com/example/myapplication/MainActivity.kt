@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
 
     override fun onDestroy() {
         Log.d(TAG, "Main Activity onDestroy")
+        stopService(runFragment.trackPlayServiceIntent)
         super.onDestroy()
     }
 

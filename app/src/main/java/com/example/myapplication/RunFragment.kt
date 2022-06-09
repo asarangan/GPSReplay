@@ -35,7 +35,7 @@ class RunFragment(val data:Data) : Fragment() {
     private lateinit var runFragmentView:View   //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
-    private lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
+    lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"RunFragment OnCreate")
@@ -106,6 +106,7 @@ class RunFragment(val data:Data) : Fragment() {
                 Log.d(TAG,"onServiceConnected")
                 trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
                 trackPlayService.setData(data)
+                trackPlayService.initGPS()
                 trackPlayService.startPlayLoop()
             }
 
@@ -135,9 +136,9 @@ class RunFragment(val data:Data) : Fragment() {
 
         playPauseButton.setOnClickListener {
             if (data.numOfPoints>0) {
+                data.deltaTime = System.currentTimeMillis() - Date(data.trackpoints[data.currentPoint].epoch).time
                 data.play = !data.play
                 playPauseButtonColor()
-                data.deltaTime = System.currentTimeMillis() - Date(data.trackpoints[data.currentPoint].epoch).time
             }
         }
 
