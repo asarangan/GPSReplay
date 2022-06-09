@@ -31,11 +31,9 @@ class RunFragment(val data:Data) : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var runFragmentView:View
-    lateinit var gpsPlot:GPSTrackPlot
-    lateinit var tvPoint: TextView
-    lateinit var tvAltitude: TextView
-    lateinit var tvSpeed: TextView
+    private lateinit var runFragmentView:View   //Need this in whole class because playPauseButtonColor is called from MainActivity
+    private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
+    private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,9 +55,9 @@ class RunFragment(val data:Data) : Fragment() {
                 qqx.add(data.trackpoints[i].lon.toFloat())
                 qqy.add(data.trackpoints[i].lat.toFloat())
             }
-            tvPoint.text = data.currentPoint.toString()
-            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
-            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
+//            tvPoint.text = data.currentPoint.toString()
+//            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
+//            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
         }
         else{
             qqx.add(0F)
@@ -75,7 +73,6 @@ class RunFragment(val data:Data) : Fragment() {
     }
 
     fun playPauseButtonColor(){
-        //trackPlayService.play = play
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         if (data.play){
             playPauseButton.text = "Playing"
@@ -87,10 +84,10 @@ class RunFragment(val data:Data) : Fragment() {
         }
     }
 
-    fun updatePointIndex(i:Int){
-        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
-        tvPoint.text = i.toString()
-    }
+//    fun updatePointIndex(i:Int){
+//        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+//        tvPoint.text = i.toString()
+//    }
 
 
     override fun onCreateView(
@@ -102,11 +99,12 @@ class RunFragment(val data:Data) : Fragment() {
 
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
-        val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        playPauseButton = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
-        tvPoint = runFragmentView.findViewById<TextView>(R.id.tvPoint)
-        tvAltitude = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
-        tvSpeed = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
+        val tvPoint:TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+        val tvAltitude:TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
+        val tvSpeed:TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
+        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
         lateinit var trackPlayService: TrackPlayService
 
 
@@ -124,11 +122,21 @@ class RunFragment(val data:Data) : Fragment() {
         }
 
         val trackPlayServiceIntent: Intent = Intent(runFragmentView.context,TrackPlayService::class.java)
-        getActivity()?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+        activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
+        playPauseButtonColor()      //We need to set the color to red on the first run
 
 
-        playPauseButtonColor()
-        //newTrackPlot(currentPoint)
+        Thread{
+            while (true){
+                activity?.runOnUiThread( Runnable {
+                    getDataFromServiceAndUpdateDisplay(seekBar, tvPoint, tvAltitude, tvSpeed)
+                }
+                )
+                Thread.sleep(100)
+            }
+        }.start()
+
 
         playPauseButton.setOnClickListener {
             if (data.numOfPoints>0) {
@@ -168,13 +176,24 @@ class RunFragment(val data:Data) : Fragment() {
             }
         })
 
+
         return runFragmentView
     }
 
     override fun onDestroyView() {
         Log.d(TAG,"RunFragment OnDestroyView")
         super.onDestroyView()
-        //MainActivity().unbindService(serviceConnection)
+    }
+
+
+    fun getDataFromServiceAndUpdateDisplay(seekBar: SeekBar, tvPoint:TextView, tvAltitude:TextView, tvSpeed:TextView){
+            if (data.play) {
+                seekBar.progress = data.currentPoint
+                tvPoint.text = data.currentPoint.toString()
+                tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
+                tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
+                newTrackPlot()
+            }
     }
 
 

@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)              //This inflates the layout
 
-
         supportFragmentManager.beginTransaction().apply {
             add(R.id.frameLayout, fileFragment)             //Adding the frames does not call onCreateView of the fragment. onCreateView will be called after the onCreate (of the Main Activity) exits.
             add(R.id.frameLayout, runFragment)
@@ -44,15 +43,11 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
                 }
                 R.id.itemRun -> {
                     if (data.numOfPoints > 0) {  //If points are zero, then most likely no file has been read. Calling trackpoints will crash because trackpoints would be uninitiated.
-                        findViewById<SeekBar>(R.id.seekBar).max = data.numOfPoints - 1
-                        findViewById<SeekBar>(R.id.seekBar).progress = data.currentPoint
+                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
                         runFragment.playPauseButtonColor()
                     }
                     else {
-                        findViewById<SeekBar>(R.id.seekBar).max = 0
-                        findViewById<TextView>(R.id.tvPoint).text = "-"
-                        findViewById<TextView>(R.id.tvAltitude).text = "-"
-                        findViewById<TextView>(R.id.tvSpeed).text = "-"
+                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
                         runFragment.playPauseButtonColor()
                     }
                         runFragment.newTrackPlot() //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
@@ -62,14 +57,29 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
             }
             true
         }
+    }
 
+    fun updateRunFragmentDisplay(data:Data, seekBar:SeekBar, tvPoint:TextView, tvAltitude:TextView, tvSpeed:TextView){
+        if (data.numOfPoints > 0){
+            seekBar.max = data.numOfPoints-1
+            seekBar.progress = data.currentPoint
+            tvPoint.text = data.currentPoint.toString()
+            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
+            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
+        }
+        else{
+            seekBar.max = 0
+            seekBar.progress = 0
+            tvPoint.text = "-"
+            tvSpeed.text = "-"
+            tvAltitude.text = "-"
+        }
     }
 
     override fun onDestroy() {
         Log.d(TAG, "Main Activity onDestroy")
         super.onDestroy()
 //        stopService(trackPlayServiceIntent)
-
 
     }
 
