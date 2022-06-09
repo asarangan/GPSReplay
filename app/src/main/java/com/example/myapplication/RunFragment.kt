@@ -34,7 +34,7 @@ class RunFragment(val data:Data) : Fragment() {
     private lateinit var runFragmentView:View   //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
-
+    private lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"RunFragment OnCreate")
@@ -55,9 +55,6 @@ class RunFragment(val data:Data) : Fragment() {
                 qqx.add(data.trackpoints[i].lon.toFloat())
                 qqy.add(data.trackpoints[i].lat.toFloat())
             }
-//            tvPoint.text = data.currentPoint.toString()
-//            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
-//            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
         }
         else{
             qqx.add(0F)
@@ -83,11 +80,6 @@ class RunFragment(val data:Data) : Fragment() {
             playPauseButton.setBackgroundColor(ContextCompat.getColor(runFragmentView.context,R.color.myRed))
         }
     }
-
-//    fun updatePointIndex(i:Int){
-//        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
-//        tvPoint.text = i.toString()
-//    }
 
 
     override fun onCreateView(
@@ -121,8 +113,10 @@ class RunFragment(val data:Data) : Fragment() {
             }
         }
 
-        val trackPlayServiceIntent: Intent = Intent(runFragmentView.context,TrackPlayService::class.java)
+        trackPlayServiceIntent = Intent(runFragmentView.context,TrackPlayService::class.java)
+        activity?.startService(trackPlayServiceIntent)
         activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
 
         playPauseButtonColor()      //We need to set the color to red on the first run
 
@@ -182,6 +176,7 @@ class RunFragment(val data:Data) : Fragment() {
 
     override fun onDestroyView() {
         Log.d(TAG,"RunFragment OnDestroyView")
+        activity?.stopService(trackPlayServiceIntent)
         super.onDestroyView()
     }
 
