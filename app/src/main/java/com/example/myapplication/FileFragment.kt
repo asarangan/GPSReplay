@@ -25,17 +25,11 @@ private const val ARG_PARAM2 = "param2"
  * Use the [FileFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FileFragment : Fragment() {
+class FileFragment(val data:Data) : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    var data:Data = Data()
-
-    fun xferData(data:Data){
-        this.data = data
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"FileFragment OnCreate")
@@ -58,20 +52,15 @@ class FileFragment : Fragment() {
         val fileFragmentView:View = inflater.inflate(R.layout.fragment_file, container, false)
 
         //This is for reading the external file
-        val getContentActivity =  registerForActivityResult(ActivityResultContracts.GetContent(),GPXDataCallBack(fileFragmentView))
+        val getContentActivity =  registerForActivityResult(ActivityResultContracts.GetContent(),GPXDataCallBack(fileFragmentView,data))
 
         val gpxReadFileButton:Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
         gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
         }
-
         return fileFragmentView
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        this.data = data
-    }
 
     override fun onDestroyView() {
         Log.d(TAG,"FileFragment OnDestroyView")
@@ -90,7 +79,7 @@ class FileFragment : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            FileFragment().apply {
+            FileFragment(Data()).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

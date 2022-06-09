@@ -10,20 +10,22 @@ import androidx.annotation.MainThread
 import com.google.android.material.internal.ContextUtils.getActivity
 
 class TrackPlayService : Service() {
-    var play: Boolean = false
-    lateinit var trackpoints: List<Trackpoint>
-    var currentPoint:Int = 0
-    var numOfPoints:Int = 0
 
-    inner class TrackPlayServiceBinder : Binder() {
-        fun getService(): TrackPlayService {
-            return this@TrackPlayService
+    lateinit var data1:Data
+
+        inner class TrackPlayServiceBinder : Binder() {
+            fun getService(): TrackPlayService {
+                return this@TrackPlayService
+            }
         }
-    }
 
-    override fun onBind(p0: Intent?): IBinder? {
-        val trackPlayServiceBinder: TrackPlayServiceBinder = TrackPlayServiceBinder()
-        return trackPlayServiceBinder
+        override fun onBind(p0: Intent?): IBinder? {
+            val trackPlayServiceBinder: TrackPlayServiceBinder = TrackPlayServiceBinder()
+            return trackPlayServiceBinder
+        }
+
+    fun setData(data:Data){
+        this.data1 = data
     }
 
 
@@ -46,14 +48,14 @@ class TrackPlayService : Service() {
 //    }
 
     fun startPlayLoop() {
-        Thread {
-            while (true) {
-                if (play) {
-                    Log.d(TAG,currentPoint.toString())
-                    Thread.sleep(1000)
-                    currentPoint++
+            Thread {
+                while (true) {
+                    if (data1.play) {
+                        Log.d(TAG, data1.currentPoint.toString())
+                        Thread.sleep(1000)
+                        data1.currentPoint++
+                    }
                 }
-            }
-        }.start()
+            }.start()
+        }
     }
-}

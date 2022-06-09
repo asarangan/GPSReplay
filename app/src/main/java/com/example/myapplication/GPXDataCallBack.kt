@@ -26,12 +26,7 @@ import java.util.*
 import kotlin.math.*
 
 
-class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
-
-    var data:Data = Data()
-    var numOfPoints:Int = 0
-    var code:Int = 0
-    open lateinit var trackpoints: List<Trackpoint>
+class GPXDataCallBack (private val view: View, private val data:Data): ActivityResultCallback<Uri> {
 
 
     override fun onActivityResult(result: Uri?) {
@@ -46,22 +41,21 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
             try {
                 val parser = XmlPullParserHandler()
                 parser.parse(inputStream)
-                trackpoints = parser.trackpoints
-                code = parser.code
+                data.trackpoints = parser.trackpoints
 
-                when (code) {
+                when (parser.code) {
                     0 -> {          //0 means the file was read successfully
-                        numOfPoints = trackpoints.size
+                        data.numOfPoints = data.trackpoints.size
                         Toast.makeText(
                             view.context,
-                            "Read $numOfPoints points",
+                            "Read ${data.numOfPoints} points",
                             Toast.LENGTH_SHORT
                         ).show()
-                        val startDate: Date = Date(trackpoints!![0].epoch)
-                        val endDate: Date = Date(trackpoints!![numOfPoints - 1].epoch)
+                        val startDate: Date = Date(data.trackpoints!![0].epoch)
+                        val endDate: Date = Date(data.trackpoints!![data.numOfPoints - 1].epoch)
 
                         //Write the number of points to the view
-                        tvNumberOfPoints.text = numOfPoints.toString()
+                        tvNumberOfPoints.text = data.numOfPoints.toString()
 
                         //Write the start date and time to the view
                         tvStartTime.text = startDate.toString()
@@ -87,9 +81,9 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                         var lat2:Double
                         var lon1:Double
                         var lon2:Double
-                        for (i in 0..numOfPoints - 2) {
-                            trackpoint1 = trackpoints[i]
-                            trackpoint2 = trackpoints[i + 1]
+                        for (i in 0..data.numOfPoints - 2) {
+                            trackpoint1 = data.trackpoints[i]
+                            trackpoint2 = data.trackpoints[i + 1]
                             lat1 = trackpoint1.lat.toRad()
                             lat2 = trackpoint2.lat.toRad()
                             lon1 = trackpoint1.lon.toRad()
@@ -104,11 +98,10 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
                             distance += dDistance
                         }
                         tvDistance.text = "${((distance*10.0).roundToInt()/10.0)} Statute Miles"
-
                     }
                     1 -> {  //1 means there was some error in the file
                         Toast.makeText(view.context, "Invalid File", Toast.LENGTH_SHORT).show()
-                        numOfPoints = 0
+                        data.numOfPoints = 0
                         tvNumberOfPoints.text = "-"
                         tvStartTime.text = "-"
                         tvEndTime.text = "-"
@@ -122,5 +115,4 @@ class GPXDataCallBack (private val view: View): ActivityResultCallback<Uri> {
             }
         }
     }
-
 }
