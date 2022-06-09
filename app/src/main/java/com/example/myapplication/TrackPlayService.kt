@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.TextView
 import androidx.annotation.MainThread
 import com.google.android.material.internal.ContextUtils.getActivity
+import java.util.*
 
 class TrackPlayService : Service() {
 
@@ -51,11 +52,25 @@ class TrackPlayService : Service() {
             Thread {
                 while (true) {
                     if (data1.play) {
-                        Log.d(TAG, data1.currentPoint.toString())
-                        Thread.sleep(1000)
+                        while (Date(data1.trackpoints[data1.currentPoint+1].epoch).time + data1.deltaTime > System.currentTimeMillis()){}
+                        Log.d(TAG, "${data1.currentPoint.toString()} ${System.currentTimeMillis()}")
+                        //Thread.sleep(1000)
                         data1.currentPoint++
                     }
                 }
             }.start()
         }
     }
+
+//if (play && (numOfPoints > 0) && (index < numOfPoints - 1)) {
+//    while (play && (Date(trackpoints!![index + 1].epoch).time + deltaTime > System.currentTimeMillis())) {
+//    }
+//    if (play) {//We need to check play again because it might have changed during the above idle loop
+//        index += 1
+//        runOnUiThread() {
+//            updateDatafields()
+//            mockGPSdata(trackpoints!![index])
+//            if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
+//                seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
+//            }
+//        }

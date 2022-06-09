@@ -16,6 +16,7 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -136,6 +137,7 @@ class RunFragment(val data:Data) : Fragment() {
             if (data.numOfPoints>0) {
                 data.play = !data.play
                 playPauseButtonColor()
+                data.deltaTime = System.currentTimeMillis() - Date(data.trackpoints[data.currentPoint].epoch).time
             }
         }
 
@@ -176,7 +178,7 @@ class RunFragment(val data:Data) : Fragment() {
 
     override fun onDestroyView() {
         Log.d(TAG,"RunFragment OnDestroyView")
-        activity?.stopService(trackPlayServiceIntent)
+        //activity?.stopService(trackPlayServiceIntent)
         super.onDestroyView()
     }
 

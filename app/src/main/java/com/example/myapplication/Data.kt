@@ -6,4 +6,5 @@ class Data {
         var currentPoint:Int = 0
         var numOfPoints:Int = 0
         lateinit var trackpoints: List<Trackpoint>
+        var deltaTime:Long = 0
 }
