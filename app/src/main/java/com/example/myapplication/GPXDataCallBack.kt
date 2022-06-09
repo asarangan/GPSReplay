@@ -42,6 +42,8 @@ class GPXDataCallBack (private val view: View, private val data:Data): ActivityR
                 val parser = XmlPullParserHandler()
                 parser.parse(inputStream)
                 data.trackpoints = parser.trackpoints
+                data.play = false
+                data.currentPoint = 0
 
                 when (parser.code) {
                     0 -> {          //0 means the file was read successfully
