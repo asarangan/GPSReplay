@@ -18,18 +18,18 @@ class TrackPlayService : Service() {
 
     lateinit var data1: Data
 
-    val locationManager: LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-    val mockLocation: Location = Location(LocationManager.GPS_PROVIDER)
+    lateinit var locationManager: LocationManager
+     lateinit var mockLocation: Location
 
     fun initGPS() {
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        mockLocation = Location(LocationManager.GPS_PROVIDER)
 
         try {
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-
         locationManager.addTestProvider(
             LocationManager.GPS_PROVIDER,
             false,
@@ -58,7 +58,6 @@ class TrackPlayService : Service() {
         locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
     }
 
-
     inner class TrackPlayServiceBinder : Binder() {
         fun getService(): TrackPlayService {
             return this@TrackPlayService
@@ -69,7 +68,6 @@ class TrackPlayService : Service() {
         val trackPlayServiceBinder: TrackPlayServiceBinder = TrackPlayServiceBinder()
         return trackPlayServiceBinder
     }
-
 
 
     fun setData(data:Data){
@@ -96,16 +94,6 @@ class TrackPlayService : Service() {
 //    }
 
     fun startPlayLoop() {
-
-
-
-
-
-
-
-
-
-
         Thread {
                 while (true) {
                     if ((data1.play)&&(data1.currentPoint < data1.numOfPoints)) {
@@ -113,6 +101,7 @@ class TrackPlayService : Service() {
                         Log.d(TAG, "${data1.currentPoint.toString()} ${System.currentTimeMillis()}")
                         //Thread.sleep(1000)
                         data1.currentPoint++
+                        mockGPSdata(data1.trackpoints[data1.currentPoint])
                     }
                 }
             }.start()
