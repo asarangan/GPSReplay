@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -116,7 +117,9 @@ class RunFragment(val data:Data) : Fragment() {
         }
 
         trackPlayServiceIntent = Intent(runFragmentView.context,TrackPlayService::class.java)
-        activity?.startService(trackPlayServiceIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            activity?.startForegroundService(trackPlayServiceIntent)
+        }
         activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
 
