@@ -42,6 +42,7 @@ class RunFragment(val data:Data) : Fragment() {
     private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
     lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
     lateinit var trackPlayService:TrackPlayService   //Need this in whole class because gps location needs to be deleted on exit, and that is inside the service class.
+    lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onDestroy of Main Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"RunFragment OnCreate")
@@ -106,7 +107,7 @@ class RunFragment(val data:Data) : Fragment() {
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
 
 
-        val serviceConnection: ServiceConnection = object: ServiceConnection {
+        serviceConnection = object: ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
                 Log.d(TAG,"onServiceConnected")
                 trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
