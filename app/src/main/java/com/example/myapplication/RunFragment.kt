@@ -117,9 +117,9 @@ class RunFragment(val data:Data) : Fragment() {
         }
 
         trackPlayServiceIntent = Intent(runFragmentView.context,TrackPlayService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity?.startForegroundService(trackPlayServiceIntent)
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            activity?.startForegroundService(trackPlayServiceIntent)
+//        }
         activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
 
