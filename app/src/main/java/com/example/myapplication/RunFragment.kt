@@ -3,8 +3,11 @@ package com.example.myapplication
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
+import android.content.Context.LOCATION_SERVICE
 import android.content.Intent
 import android.content.ServiceConnection
+import android.location.LocationManager
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -17,6 +20,7 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,6 +41,7 @@ class RunFragment(val data:Data) : Fragment() {
     private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
     lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
+    lateinit var trackPlayService:TrackPlayService   //Need this in whole class because gps location needs to be deleted on exit, and that is inside the service class.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"RunFragment OnCreate")
@@ -99,7 +104,6 @@ class RunFragment(val data:Data) : Fragment() {
         val tvAltitude:TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed:TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
-        lateinit var trackPlayService: TrackPlayService
 
 
         val serviceConnection: ServiceConnection = object: ServiceConnection {
@@ -176,7 +180,6 @@ class RunFragment(val data:Data) : Fragment() {
             }
         })
 
-
         return runFragmentView
     }
 
@@ -184,6 +187,13 @@ class RunFragment(val data:Data) : Fragment() {
         Log.d(TAG,"RunFragment OnDestroyView")
         //activity?.stopService(trackPlayServiceIntent)
         super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG,"RunFragment OnDestroy")
+        //trackPlayService.onExitDeleteGPS()
+
     }
 
 

@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -79,6 +80,7 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
     override fun onDestroy() {
         Log.d(TAG, "Main Activity onDestroy")
         stopService(runFragment.trackPlayServiceIntent)
+        runFragment.trackPlayService.onExitDeleteGPS()
         super.onDestroy()
     }
 

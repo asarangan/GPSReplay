@@ -19,7 +19,7 @@ class TrackPlayService : Service() {
     lateinit var data1: Data
 
     lateinit var locationManager: LocationManager
-     lateinit var mockLocation: Location
+    lateinit var mockLocation: Location
 
     fun initGPS() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
@@ -74,6 +74,12 @@ class TrackPlayService : Service() {
         this.data1 = data
     }
 
+    fun onExitDeleteGPS(){
+        //val locationManager: LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if (LocationManager.GPS_PROVIDER != null) {
+            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        }
+    }
 
 //    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 //        //return super.onStartCommand(intent, flags, startId)
