@@ -79,9 +79,9 @@ class MainActivity : AppCompatActivity() {                  //Main Activity is a
 
     override fun onDestroy() {
         Log.d(TAG, "Main Activity onDestroy")
-        runFragment.trackPlayService.onExitDeleteGPS()
-        unbindService(runFragment.serviceConnection)
-        stopService(runFragment.trackPlayServiceIntent)
+//        runFragment.trackPlayService.deleteGPS()
+//        unbindService(runFragment.serviceConnection)
+//        stopService(runFragment.trackPlayServiceIntent)
         super.onDestroy()
     }
 
