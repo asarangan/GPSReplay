@@ -41,8 +41,8 @@ class RunFragment(val data:Data) : Fragment() {
     private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var gpsPlot:GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
     lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
-    lateinit var trackPlayService:TrackPlayService   //Need this in whole class because gps location needs to be deleted on exit, and that is inside the service class.
-    lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onDestroy of Main Activity
+    lateinit var trackPlayService:TrackPlayService   //Need this in whole class because GPS LOCATION needs to be deleted on exit, and that is inside the service class.
+    lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onStop
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"RunFragment OnCreate")
@@ -197,6 +197,10 @@ class RunFragment(val data:Data) : Fragment() {
 
     }
 
+    override fun onStop() {
+        Log.d(TAG,"RunFragment OnStop")
+        super.onStop()
+    }
 
     fun getDataFromServiceAndUpdateDisplay(seekBar: SeekBar, tvPoint:TextView, tvAltitude:TextView, tvSpeed:TextView){
             if (data.play) {
