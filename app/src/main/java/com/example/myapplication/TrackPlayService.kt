@@ -16,7 +16,7 @@ import java.util.*
 
 class TrackPlayService : Service() {
 
-    lateinit var data1: Data
+    var data1: Data = Data()
 
     lateinit var locationManager: LocationManager
     lateinit var mockLocation: Location
@@ -71,7 +71,7 @@ class TrackPlayService : Service() {
 
 
     fun setData(data:Data){
-        this.data1 = data
+        this.data1 = data.clone()
     }
 
     fun onExitDeleteGPS(){
@@ -81,23 +81,12 @@ class TrackPlayService : Service() {
         }
     }
 
-//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        //return super.onStartCommand(intent, flags, startId)
-//        //val tvPoint: TextView = runFragment.runFragmentView.findViewById<TextView>(R.id.tvPoint)
-//
-//        Thread(Runnable() {
-//            while (true) {
-//                if ((play)) {
-//                    Log.d("GPS", (System.currentTimeMillis() / 1000).toString())
-//                    Thread.sleep(1000)
-////                    runFragment.currentPoint++
-////                    runFragment.updatePointIndex(runFragment.currentPoint)
-//                }
-//            }
-//        }).start()
-//
-//        return START_STICKY
-//    }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+       // setData(data)
+        initGPS()
+        startPlayLoop()
+        return START_STICKY
+    }
 
     fun startPlayLoop() {
         Thread {
@@ -105,7 +94,6 @@ class TrackPlayService : Service() {
                     if ((data1.play)&&(data1.currentPoint < data1.numOfPoints)) {
                         while (Date(data1.trackpoints[data1.currentPoint+1].epoch).time + data1.deltaTime > System.currentTimeMillis()){}
                         Log.d(TAG, "${data1.currentPoint.toString()} ${System.currentTimeMillis()}")
-                        //Thread.sleep(1000)
                         data1.currentPoint++
                         mockGPSdata(data1.trackpoints[data1.currentPoint])
                     }

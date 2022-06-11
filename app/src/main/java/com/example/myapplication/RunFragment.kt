@@ -55,22 +55,6 @@ class RunFragment(val data:Data) : Fragment() {
 
     fun newTrackPlot(){
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
-//        val qqx:ArrayList<Float> = ArrayList<Float>()
-//        val qqy:ArrayList<Float> = ArrayList<Float>()
-
-//        if (data.numOfPoints > 0){
-//            for (i in 0 until data.numOfPoints ){
-//                qqx.add(data.trackpoints[i].lon.toFloat())
-//                qqy.add(data.trackpoints[i].lat.toFloat())
-//            }
-//        }
-//        else{
-//            qqx.add(0F)
-//            qqx.add(0F)
-//            qqy.add(0F)
-//            qqy.add(0F)
-//        }
-
         gpsPlot.setTrackData(data)
         gpsPlot.makeBitmap = true
         gpsPlot.setCirclePoint(data.currentPoint)
@@ -111,9 +95,7 @@ class RunFragment(val data:Data) : Fragment() {
             override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
                 Log.d(TAG,"onServiceConnected")
                 trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
-                trackPlayService.setData(data)
-                trackPlayService.initGPS()
-                trackPlayService.startPlayLoop()
+                //trackPlayService.setData(data)
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
@@ -122,15 +104,11 @@ class RunFragment(val data:Data) : Fragment() {
         }
 
         trackPlayServiceIntent = Intent(runFragmentView.context,TrackPlayService::class.java)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            activity?.startForegroundService(trackPlayServiceIntent)
-//        }
+        activity?.startService(trackPlayServiceIntent)
         activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
 
         playPauseButtonColor()      //We need to set the color to red on the first run
-
-
         Thread{
             while (true){
                 activity?.runOnUiThread( Runnable {
@@ -141,11 +119,11 @@ class RunFragment(val data:Data) : Fragment() {
             }
         }.start()
 
-
         playPauseButton.setOnClickListener {
             if (data.numOfPoints>0) {
                 data.deltaTime = System.currentTimeMillis() - Date(data.trackpoints[data.currentPoint].epoch).time
                 data.play = !data.play
+                trackPlayService.setData(data)
                 playPauseButtonColor()
             }
         }
@@ -171,7 +149,6 @@ class RunFragment(val data:Data) : Fragment() {
                     }
                 }
 
-
             override fun onStartTrackingTouch(p0: SeekBar?) {
                 //TODO("Not yet implemented")
             }
@@ -186,15 +163,12 @@ class RunFragment(val data:Data) : Fragment() {
 
     override fun onDestroyView() {
         Log.d(TAG,"RunFragment OnDestroyView")
-        //activity?.stopService(trackPlayServiceIntent)
         super.onDestroyView()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG,"RunFragment OnDestroy")
-        //trackPlayService.onExitDeleteGPS()
-
     }
 
     override fun onStop() {
