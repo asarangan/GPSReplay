@@ -16,14 +16,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 val TAG:String = "GPS"
 
-class MainActivity : AppCompatActivity() {                  //Main Activity is a class, not a variable. It is instantiated by the system.
+class MainActivity : AppCompatActivity() {
 
     val data:Data = Data()
-    private val fileFragment:FileFragment = FileFragment(data)  //Only the variables in the main section of the fragment would be instantiated. The gpxDataCallBack will be uninitialized. OnCreate would not run.
-    private val runFragment:RunFragment = RunFragment(data)     //RunFragment has no variables in the main section, so nothing inside the fragment will be instantiated.
+    private val fileFragment:FileFragment = FileFragment(data)
+    private val runFragment:RunFragment = RunFragment(data)
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {    //The onCreate of the main Activity runs only once. But it will run again when brought into focus from a minimized state.
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)              //This inflates the layout
