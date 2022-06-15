@@ -58,11 +58,11 @@ class TrackPlayService : Service() {
 
     fun startTrackPlayService() {
         Log.d(TAG, "TrackPlayService startTrackPlayService")
-        if (isServiceRunning) {
-            return
-        } else {
-            isServiceRunning = true;
-        }
+//        if (isServiceRunning) {
+//            return
+//        } else {
+//            isServiceRunning = true;
+//        }
         initGPS()
 
         Thread {

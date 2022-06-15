@@ -43,11 +43,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        trackPlayServiceIntent = Intent(runFragmentView.context,TrackPlayService::class.java)
+        trackPlayServiceIntent = Intent(this,TrackPlayService::class.java)
         //trackPlayServiceIntent.setAction("mytest");
         //activity?.startService(trackPlayServiceIntent)
-        activity?.bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
-
+        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
 
         supportFragmentManager.beginTransaction().apply {
