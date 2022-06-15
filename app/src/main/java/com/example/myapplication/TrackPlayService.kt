@@ -15,8 +15,7 @@ import java.util.*
 
 class TrackPlayService : Service() {
 
-    var data1: Data = Data()
-    val NOTIFICATION_ID: Int = 543
+    var dataPacket: Data = Data()
     var isServiceRunning: Boolean = false
 
     lateinit var locationManager: LocationManager
@@ -68,12 +67,12 @@ class TrackPlayService : Service() {
 
         Thread {
             while (true) {
-                if ((data1.play) && (data1.currentPoint < data1.numOfPoints)) {
-                    while (Date(data1.trackpoints[data1.currentPoint + 1].epoch).time + data1.deltaTime > System.currentTimeMillis()) {
+                if ((dataPacket.play) && (dataPacket.currentPoint < dataPacket.numOfPoints)) {
+                    while (Date(dataPacket.trackpoints[dataPacket.currentPoint + 1].epoch).time + dataPacket.deltaTime > System.currentTimeMillis()) {
                     }
-                    Log.d(TAG, "${data1.currentPoint.toString()} ${System.currentTimeMillis()}")
-                    data1.currentPoint++
-                    mockGPSdata(data1.trackpoints[data1.currentPoint])
+                    Log.d(TAG, "${dataPacket.currentPoint.toString()} ${System.currentTimeMillis()}")
+                    dataPacket.currentPoint++
+                    mockGPSdata(dataPacket.trackpoints[dataPacket.currentPoint])
                 }
             }
         }.start()
