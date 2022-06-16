@@ -122,14 +122,14 @@ class TrackPlayService : Service() {
         mockLocation.setAltitude(trackpoint.altitude)
         mockLocation.setSpeed(trackpoint.speed)
         mockLocation.setBearing(trackpoint.bearing)
-        mockLocation.setTime(trackpoint.epoch + data1.deltaTime)
+        mockLocation.setTime(trackpoint.epoch + dataPacket.deltaTime)
         locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
     }
 
 
     fun setData(data: Data) {
         Log.d(TAG, "TrackPlayService setData")
-        this.data1 = data.clone()
+        this.dataPacket = data.clone()
     }
 
     fun deleteGPS() {

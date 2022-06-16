@@ -18,24 +18,21 @@ val TAG:String = "GPS"
 
 class MainActivity : AppCompatActivity() {
 
-    val data:Data = Data()
-    private val fileFragment:FileFragment = FileFragment(data)
-    private val runFragment:RunFragment = RunFragment(data)
-    lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
-    lateinit var trackPlayService:TrackPlayService   //Need this in whole class because GPS LOCATION needs to be deleted on exit, and that is inside the service class.
-    lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onStop
+    //lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
+    //lateinit var trackPlayService:TrackPlayService   //Need this in whole class because GPS LOCATION needs to be deleted on exit, and that is inside the service class.
+    //lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onStop
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)              //This inflates the layout
+        var trackPlayService:TrackPlayService? = null
 
-        serviceConnection = object: ServiceConnection {
+        val serviceConnection: ServiceConnection = object: ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
                 Log.d(TAG,"onServiceConnected")
-                trackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
-                //trackPlayService.setData(data)
+                val trackPlayService:TrackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
@@ -43,11 +40,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        trackPlayServiceIntent = Intent(this,TrackPlayService::class.java)
-        //trackPlayServiceIntent.setAction("mytest");
-        //activity?.startService(trackPlayServiceIntent)
-        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
 
+        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
+        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+        while (trackPlayService == null){}
+
+
+        val data:Data = trackPlayService.dataPacket
+        val fileFragment:FileFragment = FileFragment(data)
+        val runFragment:RunFragment = RunFragment(data)
 
         supportFragmentManager.beginTransaction().apply {
             add(R.id.frameLayout, fileFragment)             //Adding the frames does not call onCreateView of the fragment. onCreateView will be called after the onCreate (of the Main Activity) exits.

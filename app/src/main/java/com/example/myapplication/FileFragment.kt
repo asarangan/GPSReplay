@@ -63,7 +63,7 @@ class FileFragment(val data:Data) : Fragment() {
 
     override fun onStop() {
         Log.d(TAG,"FileFragment OnStop")
-        super.onDestroyView()
+        super.onStop()
     }
 
     override fun onDestroyView() {

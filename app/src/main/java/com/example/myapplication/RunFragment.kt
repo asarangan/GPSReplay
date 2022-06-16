@@ -106,7 +106,7 @@ class RunFragment(val data:Data) : Fragment() {
             if (data.numOfPoints>0) {
                 data.deltaTime = System.currentTimeMillis() - Date(data.trackpoints[data.currentPoint].epoch).time
                 data.play = !data.play
-                trackPlayService.setData(data)
+                //trackPlayService.setData(data)
                 playPauseButtonColor()
             }
         }
