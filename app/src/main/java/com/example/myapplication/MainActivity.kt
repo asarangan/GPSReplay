@@ -14,7 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-val TAG:String = "GPS"
+const val TAG:String = "GPS"
+var data: Data = Data()   //This a global variable (currently empty) that can be read by the fragments and the service
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,35 +28,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)              //This inflates the layout
-        var trackPlayService:TrackPlayService? = null
+//        var trackPlayService:TrackPlayService = TrackPlayService()
 
-        val serviceConnection: ServiceConnection = object: ServiceConnection {
-            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-                Log.d(TAG,"onServiceConnected")
-                val trackPlayService:TrackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
-            }
+//        val serviceConnection: ServiceConnection = object: ServiceConnection {
+//            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+//                Log.d(TAG,"onServiceConnected")
+//                val trackPlayService:TrackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
+//            }
+//
+//            override fun onServiceDisconnected(p0: ComponentName?) {
+//                Log.d(TAG,"onServiceDisconnected")
+//            }
+//        }
 
-            override fun onServiceDisconnected(p0: ComponentName?) {
-                Log.d(TAG,"onServiceDisconnected")
-            }
-        }
+//        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
+//        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
+
+        //while (trackPlayService == null){}
 
 
-        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
-        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
-        while (trackPlayService == null){}
+//        val data:Data = trackPlayService.dataPacket
+        val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into data
+        val runFragment:RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
 
+        //Next we will display the appropriate fragment depending on the bottom navigation selection by the user
+        val qq = supportFragmentManager.beginTransaction()
+        qq.add(R.id.frameLayout, fileFragment)      //Adding the frames does not call onCreateView of the fragment. onCreateView of the fragment will be called after the onCreate (of the Main Activity) exits.
+        qq.add(R.id.frameLayout, runFragment)
+        qq.hide(runFragment)        //We apply both fragments (they will be on top of each other), and then hide one.
+        qq.commit()
 
-        val data:Data = trackPlayService.dataPacket
-        val fileFragment:FileFragment = FileFragment(data)
-        val runFragment:RunFragment = RunFragment(data)
-
-        supportFragmentManager.beginTransaction().apply {
-            add(R.id.frameLayout, fileFragment)             //Adding the frames does not call onCreateView of the fragment. onCreateView will be called after the onCreate (of the Main Activity) exits.
-            add(R.id.frameLayout, runFragment)
-            hide(runFragment)
-            commit()
-        }
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         //The listener runs in an infinite loop even after the onCreate has exited. We can only modify things. It won't call the onCreateView of the fragment again.
@@ -83,20 +85,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateRunFragmentDisplay(data:Data, seekBar:SeekBar, tvPoint:TextView, tvAltitude:TextView, tvSpeed:TextView){
-        if (data.numOfPoints > 0){
-            seekBar.max = data.numOfPoints-1
-            seekBar.progress = data.currentPoint
-            tvPoint.text = data.currentPoint.toString()
-            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
-            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
-        }
-        else{
-            seekBar.max = 0
-            seekBar.progress = 0
-            tvPoint.text = "-"
-            tvSpeed.text = "-"
-            tvAltitude.text = "-"
-        }
+//        if (data.numOfPoints > 0){
+//            seekBar.max = data.numOfPoints-1
+//            seekBar.progress = data.currentPoint
+//            tvPoint.text = data.currentPoint.toString()
+//            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
+//            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
+//        }
+//        else{
+//            seekBar.max = 0
+//            seekBar.progress = 0
+//            tvPoint.text = "-"
+//            tvSpeed.text = "-"
+//            tvAltitude.text = "-"
+//        }
     }
 
     override fun onDestroy() {
