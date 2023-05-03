@@ -19,39 +19,17 @@ var data: Data = Data()   //This a global variable (currently empty) that can be
 
 class MainActivity : AppCompatActivity() {
 
-    //lateinit var trackPlayServiceIntent:Intent //Need this in whole class because the service is called in onCreateView and stopped in onDestroyView
-    //lateinit var trackPlayService:TrackPlayService   //Need this in whole class because GPS LOCATION needs to be deleted on exit, and that is inside the service class.
-    //lateinit var serviceConnection: ServiceConnection //Need this to delete the GPS LOCATION before exiting, which is in the onStop
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
-        setContentView(R.layout.activity_main)              //This inflates the layout
-//        var trackPlayService:TrackPlayService = TrackPlayService()
+        setContentView(R.layout.activity_main)
 
-//        val serviceConnection: ServiceConnection = object: ServiceConnection {
-//            override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-//                Log.d(TAG,"onServiceConnected")
-//                val trackPlayService:TrackPlayService = (p1 as TrackPlayService.TrackPlayServiceBinder).getService()
-//            }
-//
-//            override fun onServiceDisconnected(p0: ComponentName?) {
-//                Log.d(TAG,"onServiceDisconnected")
-//            }
-//        }
+        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
 
-//        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
-//        bindService(trackPlayServiceIntent,serviceConnection, Context.BIND_AUTO_CREATE)
-
-        //while (trackPlayService == null){}
-
-
-//        val data:Data = trackPlayService.dataPacket
-        val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into data
+        val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment:RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
 
-        //Next we will display the appropriate fragment depending on the bottom navigation selection by the user
+        //Next we will load both fragments, but only show the file fragment. This will trigger the onCreate of both fragments
         val qq = supportFragmentManager.beginTransaction()
         qq.add(R.id.frameLayout, fileFragment)      //Adding the frames does not call onCreateView of the fragment. onCreateView of the fragment will be called after the onCreate (of the Main Activity) exits.
         qq.add(R.id.frameLayout, runFragment)
@@ -60,18 +38,17 @@ class MainActivity : AppCompatActivity() {
 
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
-        //The listener runs in an infinite loop even after the onCreate has exited. We can only modify things. It won't call the onCreateView of the fragment again.
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.itemFile -> {
+                R.id.itemFile -> {  //If File is selected, hide the Run fragment and show the fileFragment
                     setFragment(runFragment, fileFragment)
                 }
                 R.id.itemRun -> {
-                    if (data.numOfPoints > 0) {  //If points are zero, then most likely no file has been read. Calling trackpoints will crash because trackpoints would be uninitiated.
+                    if (data.numOfPoints > 0) {  //Points must be >0 in order to plot anything
                         updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
                         runFragment.playPauseButtonColor()
                     }
-                    else {
+                    else {  //If points are zero, then most likely no file has been read. Trackpoints would be uninitiated.
                         updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
                         runFragment.playPauseButtonColor()
                     }

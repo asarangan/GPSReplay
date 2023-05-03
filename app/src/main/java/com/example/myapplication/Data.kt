@@ -5,7 +5,7 @@ class Data {
         var play:Boolean = false
         var currentPoint:Int = 0
         var numOfPoints:Int = 0
-        lateinit var trackpoints: List<Trackpoint>
+        lateinit var trackPoints: ArrayList<TrackPoint>
         var deltaTime:Long = 0
 
 
@@ -14,7 +14,7 @@ class Data {
                 newdata.play = play
                 newdata.currentPoint = currentPoint
                 newdata.numOfPoints = numOfPoints
-                newdata.trackpoints = trackpoints.toList()
+                newdata.trackPoints = trackPoints
                 newdata.deltaTime = deltaTime
                 return newdata
         }

@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.location.Location
@@ -9,7 +8,6 @@ import android.location.provider.ProviderProperties
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.ServiceCompat.stopForeground
 import java.util.*
 
 
@@ -68,11 +66,11 @@ class TrackPlayService : Service() {
         Thread {
             while (true) {
                 if ((dataPacket.play) && (dataPacket.currentPoint < dataPacket.numOfPoints)) {
-                    while (Date(dataPacket.trackpoints[dataPacket.currentPoint + 1].epoch).time + dataPacket.deltaTime > System.currentTimeMillis()) {
+                    while (Date(dataPacket.trackPoints[dataPacket.currentPoint + 1].epoch).time + dataPacket.deltaTime > System.currentTimeMillis()) {
                     }
                     Log.d(TAG, "${dataPacket.currentPoint.toString()} ${System.currentTimeMillis()}")
                     dataPacket.currentPoint++
-                    mockGPSdata(dataPacket.trackpoints[dataPacket.currentPoint])
+                    mockGPSdata(dataPacket.trackPoints[dataPacket.currentPoint])
                 }
             }
         }.start()
@@ -116,12 +114,12 @@ class TrackPlayService : Service() {
         mockLocation.setAccuracy(5.0F)
     }
 
-    fun mockGPSdata(trackpoint: Trackpoint) {
+    fun mockGPSdata(trackpoint: TrackPoint) {
         mockLocation.setLatitude(trackpoint.lat)
         mockLocation.setLongitude(trackpoint.lon)
         mockLocation.setAltitude(trackpoint.altitude)
         mockLocation.setSpeed(trackpoint.speed)
-        mockLocation.setBearing(trackpoint.bearing)
+        mockLocation.setBearing(trackpoint.trueCourse)
         mockLocation.setTime(trackpoint.epoch + dataPacket.deltaTime)
         locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
     }
@@ -139,7 +137,6 @@ class TrackPlayService : Service() {
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         }
     }
-
 
 }
 

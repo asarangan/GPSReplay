@@ -2,14 +2,14 @@ package com.example.myapplication
 
 import kotlin.math.PI
 
-class Trackpoint {
+class TrackPoint {
 
     var epoch: Long = 0
     var lat: Double = 0.0
     var lon: Double = 0.0
     var speed: Float = 0.0F
     var altitude: Double = 0.0
-    var bearing: Float = 0.0F
+    var trueCourse: Float = 0.0F
 }
 
 fun Float.toKts(): Float {
