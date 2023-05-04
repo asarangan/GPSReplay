@@ -76,7 +76,7 @@ class FileFragment() : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG,"FileFragment onViewCreated")
+        Log.d(TAG, "FileFragment onViewCreated")
         super.onViewCreated(view, savedInstanceState)
     }
 

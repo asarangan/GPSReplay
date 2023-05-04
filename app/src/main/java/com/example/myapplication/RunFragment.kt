@@ -39,16 +39,18 @@ class RunFragment() : Fragment() {
         }
     }
 
-    //During file open, both fragments will go into onStop. Then they resume with onStart. We need to change the length of seekbar after the file has been read
+    //During file open, both fragments will go into onStop. Then they resume with onStart.
+    //In case the file has been just read (or new file), we need to create a new track plot, set the length of seekbar, and set the color of the play/pause
     override fun onStart() {
+        super.onStart()
         Log.d(TAG, "RunFragment OnStart")
-
-
-
-
+        //Create a new track plot
+        newTrackPlot()
+        //set the length of the seek bar
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         seekBar.max = data.numOfPoints - 1
-        super.onStart()
+        //Set the color of the play/pause button based on the variable inside data. At the beginning this will be red.
+        playPauseButtonColor()
     }
 
     override fun onCreateView(
@@ -68,10 +70,6 @@ class RunFragment() : Fragment() {
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
 
-        newTrackPlot()
-
-        //Set the color of the play/pause button based on the variable inside data. At the beginning this will be red.
-        playPauseButtonColor()
 
         //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
         Thread {
@@ -190,8 +188,6 @@ class RunFragment() : Fragment() {
     }
 
 
-
-
     private fun getDataFromServiceAndUpdateDisplay(
         seekBar: SeekBar,
         tvPoint: TextView,
@@ -203,7 +199,6 @@ class RunFragment() : Fragment() {
             tvPoint.text = data.currentPoint.toString()
             tvAltitude.text = data.trackPoints[data.currentPoint].altitude.toFt().toString()
             tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
-            newTrackPlot()
         }
     }
 

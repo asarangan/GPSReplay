@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 //                    if (data.numOfPoints > 0) {  //Points must be >0 in order to plot anything
 //                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
 //                        runFragment.playPauseButtonColor()
-//                        runFragment.newTrackPlot() //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
+//                        runFragment.newTrackPlot()
 ////runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
 //                    }
 //                    else {  //If points are zero, then most likely no file has been read. Trackpoints would be uninitiated.
