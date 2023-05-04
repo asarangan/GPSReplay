@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment:RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
 
+
         //Next we will load both fragments, but only show the file fragment. This will trigger the onCreate of both fragments
         val qq = supportFragmentManager.beginTransaction()
         qq.add(R.id.frameLayout, fileFragment)      //Adding the frames does not call onCreateView of the fragment. onCreateView of the fragment will be called after the onCreate (of the Main Activity) exits.
@@ -40,20 +41,20 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.itemFile -> {  //If File is selected, hide the Run fragment and show the fileFragment
+                R.id.itemFile -> {  //If user selects the File fragment, hide the Run fragment and show the fileFragment
                     setFragment(runFragment, fileFragment)
                 }
                 R.id.itemRun -> {
-                    if (data.numOfPoints > 0) {  //Points must be >0 in order to plot anything
-                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
-                        runFragment.playPauseButtonColor()
-                    }
-                    else {  //If points are zero, then most likely no file has been read. Trackpoints would be uninitiated.
-                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
-                        runFragment.playPauseButtonColor()
-                    }
-                        runFragment.newTrackPlot() //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
-                        //runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
+//                    if (data.numOfPoints > 0) {  //Points must be >0 in order to plot anything
+//                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
+//                        runFragment.playPauseButtonColor()
+//                        runFragment.newTrackPlot() //Just like with numOfPoints, the plot needs to be created only once after the file has been read, but here we are doing it every time
+////runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
+//                    }
+//                    else {  //If points are zero, then most likely no file has been read. Trackpoints would be uninitiated.
+//                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
+//                        runFragment.playPauseButtonColor()
+//                    }
                     setFragment(fileFragment,runFragment)
                 }
             }

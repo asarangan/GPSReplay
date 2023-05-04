@@ -51,12 +51,13 @@ class FileFragment() : Fragment() {
         // Inflate the layout for this fragment
         val fileFragmentView: View = inflater.inflate(R.layout.fragment_file, container, false)
 
-        //This is for reading the external file
+        //This is for reading the external file, and the callback function
         val getContentActivity = registerForActivityResult(
             ActivityResultContracts.GetContent(),
             GPXDataCallBack(fileFragmentView)
         )
 
+        //This button launches the read file
         val gpxReadFileButton: Button = fileFragmentView.findViewById<Button>(R.id.gpxButton)
         gpxReadFileButton.setOnClickListener {
             getContentActivity.launch("*/*")
@@ -67,6 +68,16 @@ class FileFragment() : Fragment() {
     override fun onStop() {
         Log.d(TAG, "FileFragment OnStop")
         super.onStop()
+    }
+
+    override fun onStart() {
+        Log.d(TAG, "FileFragment OnStart")
+        super.onStart()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d(TAG,"FileFragment onViewCreated")
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDestroyView() {

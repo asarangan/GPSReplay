@@ -30,7 +30,6 @@ class RunFragment() : Fragment() {
     private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     private lateinit var gpsPlot: GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "RunFragment OnCreate")
         super.onCreate(savedInstanceState)
@@ -39,6 +38,107 @@ class RunFragment() : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
     }
+
+    //During file open, both fragments will go into onStop. Then they resume with onStart. We need to change the length of seekbar after the file has been read
+    override fun onStart() {
+        Log.d(TAG, "RunFragment OnStart")
+
+
+
+
+        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
+        seekBar.max = data.numOfPoints - 1
+        super.onStart()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        Log.d(TAG, "RunFragment OnCreateView")
+        super.onCreateView(inflater, container, savedInstanceState)
+
+        // Inflate the layout for this fragment
+        runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
+
+        playPauseButton = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
+        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
+        val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
+        val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
+        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
+
+        newTrackPlot()
+
+        //Set the color of the play/pause button based on the variable inside data. At the beginning this will be red.
+        playPauseButtonColor()
+
+        //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
+        Thread {
+            while (true) {
+                activity?.runOnUiThread(Runnable {
+                    getDataFromServiceAndUpdateDisplay(seekBar, tvPoint, tvAltitude, tvSpeed)
+                }
+                )
+                Thread.sleep(100)
+                data.currentPoint++
+            }
+        }.start()
+
+        //This is the listener for the play/pause button
+        playPauseButton.setOnClickListener {
+            if (data.numOfPoints > 0) {
+                data.deltaTime =
+                    System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
+                //Toggle the play/pause button color
+                data.play = !data.play
+                //trackPlayService.setData(data)
+                //Set the play/pause button color
+                playPauseButtonColor()
+            }
+        }
+
+        //This is the listener for the seekbar.
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                //p2 will be true if the seekbar change was caused by screen input. It would be false if the change was caused by code.
+                if (p2) {
+                    //First check if a file has been read. Otherwise don't do anything
+                    if (data.numOfPoints > 0) {
+                        //Put the player on pause if the user had interrupted the run
+                        data.play = false
+                        //Then change the color of the play/pause button
+                        playPauseButtonColor()
+                        //Move the current data position to the user selected point p1
+                        data.currentPoint = p1
+                        //Update the text fields
+                        tvPoint.text = p1.toString()
+                        tvAltitude.text =
+                            data.trackPoints[p1].altitude.toFt().toString()
+                        tvSpeed.text = data.trackPoints[p1].speed.toMph().toString()
+//                    else {
+//                        tvAltitude.text = "-"
+//                        tvSpeed.text = "-"
+//                    }
+                        //Update the track plot
+                        gpsPlot.setCirclePoint(p1)
+                        gpsPlot.postInvalidate()
+                    }
+                }
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+        })
+
+        return runFragmentView
+    }
+
 
     fun newTrackPlot() {
         gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
@@ -69,78 +169,9 @@ class RunFragment() : Fragment() {
         }
     }
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        Log.d(TAG, "RunFragment OnCreateView")
-        super.onCreateView(inflater, container, savedInstanceState)
-
-        // Inflate the layout for this fragment
-        runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
-        playPauseButton = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
-        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
-        val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
-        val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
-        val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
-        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
-
-        //At start the color will be set to red because data.play will be false on start
-        playPauseButtonColor()
-//        Thread{
-//            while (true){
-//                activity?.runOnUiThread( Runnable {
-//                    getDataFromServiceAndUpdateDisplay(seekBar, tvPoint, tvAltitude, tvSpeed)
-//                }
-//                )
-//                Thread.sleep(100)
-//            }
-//        }.start()
-
-        playPauseButton.setOnClickListener {
-            if (data.numOfPoints > 0) {
-                data.deltaTime =
-                    System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
-                //Toggle the play/pause button color
-                data.play = !data.play
-                //trackPlayService.setData(data)
-                playPauseButtonColor()
-            }
-        }
-
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                //p2 indicates if the seekbar change was caused by screen input (instead of by code)
-                if (p2) {
-                    //put the player on pause
-                    data.play = false
-                    playPauseButtonColor()
-                    tvPoint.text = p1.toString()
-                    data.currentPoint = p1
-                    if (data.numOfPoints > 0) {
-                        tvAltitude.text =
-                            data.trackPoints[p1].altitude.toFt().toString()
-                        tvSpeed.text = data.trackPoints[p1].speed.toMph().toString()
-                    } else {
-                        tvAltitude.text = "-"
-                        tvSpeed.text = "-"
-                    }
-                    gpsPlot.setCirclePoint(p1)
-                    gpsPlot.postInvalidate()
-                }
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                //TODO("Not yet implemented")
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                //TODO("Not yet implemented")
-            }
-        })
-
-        return runFragmentView
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "RunFragment OnViewCreated")
     }
 
     override fun onDestroyView() {
@@ -158,16 +189,10 @@ class RunFragment() : Fragment() {
         super.onStop()
     }
 
-    //During file open, both fragments will go into onStop. Then they resume with onStart. We need to change the length of seekbar after the file has been read
-    override fun onStart() {
-        Log.d(TAG, "RunFragment OnStart")
-        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
-        seekBar.max = data.numOfPoints-1
-        super.onStart()
-    }
 
 
-    fun getDataFromServiceAndUpdateDisplay(
+
+    private fun getDataFromServiceAndUpdateDisplay(
         seekBar: SeekBar,
         tvPoint: TextView,
         tvAltitude: TextView,
