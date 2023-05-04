@@ -26,9 +26,9 @@ class RunFragment() : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var runFragmentView: View   //Need this in whole class because playPauseButtonColor is called from MainActivity
-    private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
-    private lateinit var gpsPlot: GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
+    private lateinit var runFragmentView: View   //Need this in whole class because the layout is also needed in the onStart
+    //private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
+    //private lateinit var gpsPlot: GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "RunFragment OnCreate")
@@ -62,13 +62,12 @@ class RunFragment() : Fragment() {
 
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
-
-        playPauseButton = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
         val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
-        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
+        val gpsPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
 
 
         //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
@@ -138,8 +137,8 @@ class RunFragment() : Fragment() {
     }
 
 
-    fun newTrackPlot() {
-        gpsPlot = runFragmentView.findViewById(R.id.cvGraph)
+    private fun newTrackPlot() {
+        val gpsPlot:GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
         gpsPlot.setTrackData(data)
         gpsPlot.makeBitmap = true
         gpsPlot.setCirclePoint(data.currentPoint)
@@ -175,6 +174,11 @@ class RunFragment() : Fragment() {
     override fun onDestroyView() {
         Log.d(TAG, "RunFragment OnDestroyView")
         super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG,"RunFragment onResume")
     }
 
     override fun onDestroy() {

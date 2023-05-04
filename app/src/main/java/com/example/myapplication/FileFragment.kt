@@ -75,6 +75,11 @@ class FileFragment() : Fragment() {
         super.onStart()
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG,"FileFragment onResume")
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "FileFragment onViewCreated")
         super.onViewCreated(view, savedInstanceState)

@@ -21,23 +21,6 @@ class XmlPullParserHandler() {
     //Return code to indicate whether conversion was successful
     var returnCode: Int = 0
 
-    //The following function calculates the true course between the current point being read, and the last track point in the array.
-    //This calculation is being done before loading the current track point into the array
-    //The true course is returned from the function
-    private fun trueCourse(trackPoints: ArrayList<TrackPoint>, trackPoint: TrackPoint): Float {
-        //Longitude of the current track point
-        val lon2: Double = trackPoint?.lon.toRad()
-        //Longitude of the last track point in the array
-        val lon1: Double = trackPoints[trackPoints.size - 1].lon.toRad()
-        val lat2: Double = trackPoint?.lat.toRad()
-        val lat1: Double = trackPoints[trackPoints.size - 1].lat.toRad()
-        //val geoField:GeomagneticField = GeomagneticField(lat1.toFloat(),lon1.toFloat(),0.0F,System.currentTimeMillis())
-        //val magVar = geoField.getDeclination()    //in degrees. -ve for W. -4.8 in Dayton. We are not using this
-        return ((atan2(                          //This is the true course formula based on lat/lon from Ed Williams
-            sin(lon2 - lon1) * cos(lat2),
-            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
-        ) + 2.0 * PI) % (2.0 * PI)).toDeg().toFloat()
-    }
 
     //This is the parser that processes the string that was read from the file
     fun parse(inputStream: InputStream?) {
@@ -124,4 +107,25 @@ class XmlPullParserHandler() {
             returnCode = 2
         }
     }
+
+    //The following function calculates the true course between the current point being read, and the last track point in the array.
+    //This calculation is being done before loading the current track point into the array
+    //The true course is returned from the function
+    private fun trueCourse(trackPoints: ArrayList<TrackPoint>, trackPoint: TrackPoint): Float {
+        //Longitude of the current track point
+        val lon2: Double = trackPoint?.lon.toRad()
+        //Longitude of the last track point in the array
+        val lon1: Double = trackPoints[trackPoints.size - 1].lon.toRad()
+        val lat2: Double = trackPoint?.lat.toRad()
+        val lat1: Double = trackPoints[trackPoints.size - 1].lat.toRad()
+        //val geoField:GeomagneticField = GeomagneticField(lat1.toFloat(),lon1.toFloat(),0.0F,System.currentTimeMillis())
+        //val magVar = geoField.getDeclination()    //in degrees. -ve for W. -4.8 in Dayton. We are not using this
+        return ((atan2(                          //This is the true course formula based on lat/lon from Ed Williams
+            sin(lon2 - lon1) * cos(lat2),
+            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
+        ) + 2.0 * PI) % (2.0 * PI)).toDeg().toFloat()
+    }
+
+
+
 }
