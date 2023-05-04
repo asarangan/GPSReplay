@@ -25,8 +25,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //variable so it can be accessed from all sub classes.
 //
 //FileFragment:
-//In FileFragment the OpenGPX File button is attached to a file opening function, with a callback function. This callback function feeds
-//the input file to the XML parser.
+//In FileFragment the fragment is inflated in onCreateView, and the OpenGPX File button is attached to a file opening function, with a
+// callback function. This callback function feeds the input file to the XML parser.
 //XML Parser:
 //The XML parser uses the parser factory to detect the various tags in the GPX file and load the data in the data class. It loads the GPS
 //coordinates, altitude, speed, true course, timestamp etc.. into a track points array inside the data class. It looks for the trkpt, ele,
@@ -41,6 +41,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //in a success (detected by a return code), the callback function will just display "-" for all the fields.
 //RunFragment:
 //RunFragment is where most of the work takes place. The display contains a plot area, seekbar, current position and a play/pause button.
+//In onCreateView, the fragment is inflated (just like with FileFragment). However, the inflated view is declared outside onCreateView as
+//a lateinit var because the other functions in the class need access to it. The listener for the play/pause button click is also set in onCreateView.
+//This toggles the the run boolean in the data class, and sets the color of the button (via a function playPauseButtonColor). This function
+//is outside onCreateView, so this is why the inflated view needs to be accessible in the whole class. The listener for the seekbar is also set
+//in onCreateView. When the seekbar is changed by the user (instead of by code), the play/pause goes to pause (code.run is set to false) and
+//the button color changes. It also sets the new current position based on what the user selected, and updates the position display on
+//RunFragment. Both listeners (button and seekbar) will not do anything if the data class is empty. Seekbar can crash if we
+//try to do things with an empty track points array.
 
 
 
