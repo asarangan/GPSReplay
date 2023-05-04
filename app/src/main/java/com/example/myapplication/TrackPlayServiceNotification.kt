@@ -10,21 +10,22 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
-class GPSNotification() {
+class TrackPlayServiceNotification() {
 
-    val CHANNEL_ID = "GPS_CHANNEL_ID"
-    val CHANNEL_NAME = "GPS_CHANNEL_NAME"
+    val CHANNEL_ID = "TRACKPLAYSERVICE_CHANNEL_ID"
+    val CHANNEL_NAME = "TRACKPLAYSERVICE_CHANNEL_NAME"
 
-    fun getNotification(GPScontext: Context) {
+    fun getNotification(trackPlayContext: Context) {
 
-    val notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(GPScontext)
+        val notificationManager: NotificationManagerCompat =
+            NotificationManagerCompat.from(trackPlayContext)
 
-    val myNotification: Notification = NotificationCompat.Builder(GPScontext, CHANNEL_ID)
-        .setContentTitle("GPS Replay")
-        .setContentText("is running")
-        .setSmallIcon(R.drawable.ic_notification_foreground)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .build()
+        val myNotification: Notification = NotificationCompat.Builder(trackPlayContext, CHANNEL_ID)
+            .setContentTitle("GPS Replay")
+            .setContentText("is running")
+            .setSmallIcon(R.drawable.ic_notification_foreground)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -33,7 +34,7 @@ class GPSNotification() {
             )
             channel.lightColor = Color.GREEN
             channel.enableLights(true)
-            (GPScontext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).apply {
+            (trackPlayContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).apply {
                 createNotificationChannel(channel)
             }
         } else {

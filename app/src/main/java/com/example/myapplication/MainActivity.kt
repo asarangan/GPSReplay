@@ -42,13 +42,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //RunFragment:
 //RunFragment is where most of the work takes place. The display contains a plot area, seekbar, current position and a play/pause button.
 //In onCreateView, the fragment is inflated (just like with FileFragment). However, the inflated view is declared outside onCreateView as
-//a lateinit var because the other functions in the class need access to it. The listener for the play/pause button click is also set in onCreateView.
-//This toggles the the run boolean in the data class, and sets the color of the button (via a function playPauseButtonColor). This function
-//is outside onCreateView, so this is why the inflated view needs to be accessible in the whole class. The listener for the seekbar is also set
-//in onCreateView. When the seekbar is changed by the user (instead of by code), the play/pause goes to pause (code.run is set to false) and
-//the button color changes. It also sets the new current position based on what the user selected, and updates the position display on
-//RunFragment. Both listeners (button and seekbar) will not do anything if the data class is empty. Seekbar can crash if we
-//try to do things with an empty track points array.
+//a lateinit var because other class functions need access to it (playPauseButtonColor and updateTrackPosition). The listener for the
+//play/pause button click is set in onCreateView. This toggles the run boolean in the data class, and then sets the color of the button
+//(via a function playPauseButtonColor). This color changing function needs access to the inflated view. The listener for the seekbar is
+//also set in onCreateView. When the seekbar is changed by the user (instead of by code), the play/pause goes to pause (code.run is set to
+//false) and the playPauseButtonColor is called to change its color to red. It also sets updates the track plot based on the dragged position
+//of the seekbar. The button click will not do anything if the data class does not have valid data. The updateTrackPosition (via the seekbar
+//listener) will also not do anything if the data class is empty.
+//The trackplot is created based on the data class during onStart (which comes after onCreateView). OnStart happens after onCreateView, and
+//the seekbar listener calls updateTrackPosition (which needs the trackplot). But this is not a problem because by the time the user interacts
+//with the seekbar, onStart would have completed.
+//onCreateView of RunFragment also launches a never-ending thread. This will run the updateTrackPosition function every 100ms. This is basically
+//updating the position on the track plot as the current position is incremented by the TrackPlayService.
+//TrackPlayService:
 
 
 

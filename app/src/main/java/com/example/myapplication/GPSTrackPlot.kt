@@ -42,9 +42,6 @@ class GPSTrackPlot : View {
     private var yScale: Float = 0F
     lateinit var xDataPoints: FloatArray
     lateinit var yDataPoints: FloatArray
-
-    //    var xDataPoints:ArrayList<Float> = ArrayList<Float>()
-//    var yDataPoints:ArrayList<Float> = ArrayList<Float>()
     private var circlePoint: Int = 0
     private var circleRadius: Float = 0F
     lateinit var bitmap_object: Bitmap
@@ -52,30 +49,14 @@ class GPSTrackPlot : View {
 
 
     fun setTrackData(data: Data) {
-
-//        val qqx:ArrayList<Float> = ArrayList<Float>()
-//        val qqy:ArrayList<Float> = ArrayList<Float>()
-
         if (data.numOfPoints > 0) {
             xDataPoints = FloatArray(data.numOfPoints)
             yDataPoints = FloatArray(data.numOfPoints)
             for (i in 0 until data.numOfPoints) {
-//                qqx.add(data.trackpoints[i].lon.toFloat())
-//                qqy.add(data.trackpoints[i].lat.toFloat())
-//                xDataPoints.add(data.trackpoints[i].lon.toFloat())
-//                yDataPoints.add(data.trackpoints[i].lat.toFloat())
                 xDataPoints[i] = data.trackPoints[i].lon.toFloat()
                 yDataPoints[i] = data.trackPoints[i].lat.toFloat()
             }
         } else {
-//            qqx.add(0F)
-//            qqx.add(0F)
-//            qqy.add(0F)
-//            qqy.add(0F)
-//            xDataPoints.add(0F)
-//            xDataPoints.add(0F)
-//            yDataPoints.add(0F)
-//            yDataPoints.add(0F)
             xDataPoints = FloatArray(2)
             yDataPoints = FloatArray(2)
             xDataPoints[0] = 0F
@@ -83,9 +64,6 @@ class GPSTrackPlot : View {
             yDataPoints[0] = 0F
             yDataPoints[1] = 0F
         }
-//        this.xDataPoints = qqx
-//        this.yDataPoints = qqy
-//        this.circlePoint = circlePoint
     }
 
 

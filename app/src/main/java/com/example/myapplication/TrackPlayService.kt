@@ -13,7 +13,6 @@ import java.util.*
 
 class TrackPlayService : Service() {
 
-    var dataPacket: Data = Data()
     var isServiceRunning: Boolean = false
 
     lateinit var locationManager: LocationManager
@@ -56,21 +55,16 @@ class TrackPlayService : Service() {
 
     fun startTrackPlayService() {
         Log.d(TAG, "TrackPlayService startTrackPlayService")
-//        if (isServiceRunning) {
-//            return
-//        } else {
-//            isServiceRunning = true;
-//        }
         initGPS()
 
         Thread {
             while (true) {
-                if ((dataPacket.play) && (dataPacket.currentPoint < dataPacket.numOfPoints)) {
-                    while (Date(dataPacket.trackPoints[dataPacket.currentPoint + 1].epoch).time + dataPacket.deltaTime > System.currentTimeMillis()) {
+                if ((data.play) && (data.currentPoint < data.numOfPoints)) {
+                    while (Date(data.trackPoints[data.currentPoint + 1].epoch).time + data.deltaTime > System.currentTimeMillis()) {
                     }
-                    Log.d(TAG, "${dataPacket.currentPoint.toString()} ${System.currentTimeMillis()}")
-                    dataPacket.currentPoint++
-                    mockGPSdata(dataPacket.trackPoints[dataPacket.currentPoint])
+                    Log.d(TAG, "${data.currentPoint.toString()} ${System.currentTimeMillis()}")
+                    data.currentPoint++
+                    mockGPSdata(data.trackPoints[data.currentPoint])
                 }
             }
         }.start()
@@ -86,7 +80,7 @@ class TrackPlayService : Service() {
 
 
 
-    fun initGPS() {
+    private fun initGPS() {
         Log.d(TAG, "TrackPlayService initGPS")
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         mockLocation = Location(LocationManager.GPS_PROVIDER)
@@ -120,14 +114,14 @@ class TrackPlayService : Service() {
         mockLocation.setAltitude(trackpoint.altitude)
         mockLocation.setSpeed(trackpoint.speed)
         mockLocation.setBearing(trackpoint.trueCourse)
-        mockLocation.setTime(trackpoint.epoch + dataPacket.deltaTime)
+        mockLocation.setTime(trackpoint.epoch + data.deltaTime)
         locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
     }
 
 
     fun setData(data: Data) {
         Log.d(TAG, "TrackPlayService setData")
-        this.dataPacket = data.clone()
+        //data = data.clone()
     }
 
     fun deleteGPS() {

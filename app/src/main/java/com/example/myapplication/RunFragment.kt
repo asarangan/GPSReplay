@@ -49,8 +49,6 @@ class RunFragment() : Fragment() {
         //set the length of the seek bar
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         seekBar.max = data.numOfPoints - 1
-        //Set the color of the play/pause button based on the variable inside data. At the beginning this will be red.
-        playPauseButtonColor()
     }
 
     override fun onCreateView(
@@ -60,25 +58,29 @@ class RunFragment() : Fragment() {
         Log.d(TAG, "RunFragment OnCreateView")
         super.onCreateView(inflater, container, savedInstanceState)
 
+
         // Inflate the layout for this fragment
         runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        playPauseButtonColor()
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
         val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
-        val gpsPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
+        val gpsTrackPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
 
 
         //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
         Thread {
             while (true) {
                 activity?.runOnUiThread(Runnable {
-                    getDataFromServiceAndUpdateDisplay(seekBar, tvPoint, tvAltitude, tvSpeed)
+                    updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
                 }
                 )
-                Thread.sleep(100)
-                data.currentPoint++
+                Thread.sleep(50)
+                if (data.play) {
+                    data.currentPoint++
+                }
             }
         }.start()
 
@@ -100,27 +102,14 @@ class RunFragment() : Fragment() {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 //p2 will be true if the seekbar change was caused by screen input. It would be false if the change was caused by code.
                 if (p2) {
-                    //First check if a file has been read. Otherwise don't do anything
-                    if (data.numOfPoints > 0) {
-                        //Put the player on pause if the user had interrupted the run
-                        data.play = false
-                        //Then change the color of the play/pause button
-                        playPauseButtonColor()
-                        //Move the current data position to the user selected point p1
-                        data.currentPoint = p1
-                        //Update the text fields
-                        tvPoint.text = p1.toString()
-                        tvAltitude.text =
-                            data.trackPoints[p1].altitude.toFt().toString()
-                        tvSpeed.text = data.trackPoints[p1].speed.toMph().toString()
-//                    else {
-//                        tvAltitude.text = "-"
-//                        tvSpeed.text = "-"
-//                    }
-                        //Update the track plot
-                        gpsPlot.setCirclePoint(p1)
-                        gpsPlot.postInvalidate()
-                    }
+                    //First check if a file has been read and there are valid data points. Otherwise don't do anything
+                    //Put the player on pause if the user had interrupted the run
+                    data.play = false
+                    //Then change the color of the play/pause button
+                    playPauseButtonColor()
+                    //Move the current data position to the user selected point p1
+                    data.currentPoint = p1
+                    updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
                 }
             }
 
@@ -132,20 +121,11 @@ class RunFragment() : Fragment() {
                 //TODO("Not yet implemented")
             }
         })
-
         return runFragmentView
     }
 
 
-    private fun newTrackPlot() {
-        val gpsPlot:GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
-        gpsPlot.setTrackData(data)
-        gpsPlot.makeBitmap = true
-        gpsPlot.setCirclePoint(data.currentPoint)
-        gpsPlot.postInvalidate()
-    }
-
-    fun playPauseButtonColor() {
+    private fun playPauseButtonColor() {
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         if (data.play) {
             playPauseButton.text = "Playing"
@@ -166,6 +146,16 @@ class RunFragment() : Fragment() {
         }
     }
 
+
+    private fun newTrackPlot() {
+        val gpsPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
+        gpsPlot.setTrackData(data)
+        gpsPlot.makeBitmap = true
+        gpsPlot.setCirclePoint(data.currentPoint)
+        gpsPlot.postInvalidate()
+    }
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "RunFragment OnViewCreated")
@@ -178,7 +168,7 @@ class RunFragment() : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG,"RunFragment onResume")
+        Log.d(TAG, "RunFragment onResume")
     }
 
     override fun onDestroy() {
@@ -192,17 +182,20 @@ class RunFragment() : Fragment() {
     }
 
 
-    private fun getDataFromServiceAndUpdateDisplay(
+    private fun updateTrackPosition(
         seekBar: SeekBar,
         tvPoint: TextView,
         tvAltitude: TextView,
-        tvSpeed: TextView
+        tvSpeed: TextView,
+        gpsTrackPlot: GPSTrackPlot
     ) {
-        if (data.play) {
+        if (data.numOfPoints > 0) {
             seekBar.progress = data.currentPoint
             tvPoint.text = data.currentPoint.toString()
             tvAltitude.text = data.trackPoints[data.currentPoint].altitude.toFt().toString()
             tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
+            gpsTrackPlot.setCirclePoint(data.currentPoint)
+            gpsTrackPlot.postInvalidate()
         }
     }
 
