@@ -49,11 +49,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //false) and the playPauseButtonColor is called to change its color to red. It also sets updates the track plot based on the dragged position
 //of the seekbar. The button click will not do anything if the data class does not have valid data. The updateTrackPosition (via the seekbar
 //listener) will also not do anything if the data class is empty.
-//The trackplot is created based on the data class during onStart (which comes after onCreateView). OnStart happens after onCreateView, and
-//the seekbar listener calls updateTrackPosition (which needs the trackplot). But this is not a problem because by the time the user interacts
+//The track plot is created based on the data class during onStart (which comes after onCreateView). OnStart happens after onCreateView, and
+//the seekbar listener calls updateTrackPosition (which needs the track plot). But this is not a problem because by the time the user interacts
 //with the seekbar, onStart would have completed.
-//onCreateView of RunFragment also launches a never-ending thread. This will run the updateTrackPosition function every 100ms. This is basically
-//updating the position on the track plot as the current position is incremented by the TrackPlayService.
+//onCreateView of RunFragment also launches an instance of the TrackPlotPollThread nested class. This is a continuously running thread that will
+//update the current position on the track plot every 100ms. The current position is incremented by the TrackPlayService. The TrackPlotPollThread
+//needs access to the updateTrackPosition function. Therefore, inside the updateTrackPosition function, a new instance of RUnFragment is created,
+//to access the updateTrackPosition function. This doesn't run onCreate, onStart etc.. because it is just a kotlin class.
 //TrackPlayService:
 
 

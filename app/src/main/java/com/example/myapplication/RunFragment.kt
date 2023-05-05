@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -69,20 +70,16 @@ class RunFragment() : Fragment() {
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
         val gpsTrackPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
 
+        val trackPlotPollThread: TrackPlotPollThread = TrackPlotPollThread(
+            seekBar,
+            tvPoint,
+            tvAltitude,
+            tvSpeed,
+            gpsTrackPlot,
+            MainActivity()
+        )
+        trackPlotPollThread.start()
 
-        //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
-        Thread {
-            while (true) {
-                activity?.runOnUiThread(Runnable {
-                    updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
-                }
-                )
-                Thread.sleep(50)
-                if (data.play) {
-                    data.currentPoint++
-                }
-            }
-        }.start()
 
         //This is the listener for the play/pause button
         playPauseButton.setOnClickListener {
@@ -126,7 +123,8 @@ class RunFragment() : Fragment() {
 
 
     private fun playPauseButtonColor() {
-        val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        val playPauseButton: Button =
+            runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         if (data.play) {
             playPauseButton.text = "Playing"
             playPauseButton.setBackgroundColor(
@@ -146,7 +144,6 @@ class RunFragment() : Fragment() {
         }
     }
 
-
     private fun newTrackPlot() {
         val gpsPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
         gpsPlot.setTrackData(data)
@@ -154,7 +151,6 @@ class RunFragment() : Fragment() {
         gpsPlot.setCirclePoint(data.currentPoint)
         gpsPlot.postInvalidate()
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -164,6 +160,7 @@ class RunFragment() : Fragment() {
     override fun onDestroyView() {
         Log.d(TAG, "RunFragment OnDestroyView")
         super.onDestroyView()
+        //trackPlotPollThread.interrupt()
     }
 
     override fun onResume() {
@@ -182,7 +179,7 @@ class RunFragment() : Fragment() {
     }
 
 
-    private fun updateTrackPosition(
+    fun updateTrackPosition(
         seekBar: SeekBar,
         tvPoint: TextView,
         tvAltitude: TextView,
@@ -196,6 +193,34 @@ class RunFragment() : Fragment() {
             tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
             gpsTrackPlot.setCirclePoint(data.currentPoint)
             gpsTrackPlot.postInvalidate()
+        }
+    }
+
+    //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
+    // The updateTrackPosition has to be run on the UI thread. Otherwise it will crash
+    class TrackPlotPollThread(
+        private val seekBar: SeekBar,
+        private val tvPoint: TextView,
+        private val tvAltitude: TextView,
+        private val tvSpeed: TextView,
+        private val gpsTrackPlot: GPSTrackPlot,
+        private val activity: MainActivity
+    ) : Thread() {
+        override fun run() {
+            try {
+                while (true) {
+                    activity.runOnUiThread(Runnable {
+                        RunFragment().updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
+                    }
+                    )
+                    Thread.sleep(50)
+                    if (data.play) {
+                        data.currentPoint++
+                    }
+                }
+            } catch (e: InterruptedException) {
+                Log.d(TAG, "trackPlotWatchThread was interrupted")
+            }
         }
     }
 
@@ -220,3 +245,4 @@ class RunFragment() : Fragment() {
             }
     }
 }
+
