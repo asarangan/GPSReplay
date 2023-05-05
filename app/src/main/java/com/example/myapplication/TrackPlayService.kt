@@ -10,7 +10,6 @@ import android.os.IBinder
 import android.util.Log
 import java.util.*
 
-
 class TrackPlayService : Service() {
 
     var isServiceRunning: Boolean = false

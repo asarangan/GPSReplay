@@ -1,6 +1,8 @@
 package com.example.myapplication
 
 import android.app.Activity
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import java.util.*
 
@@ -28,6 +31,7 @@ class RunFragment() : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var runFragmentView: View   //Need this in whole class because the layout is also needed in the onStart
+    private lateinit var trackPlotPollThread: TrackPlotPollThread   //This is needed in the onCreateView and onDestroyView
     //private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
     //private lateinit var gpsPlot: GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
 
@@ -52,6 +56,7 @@ class RunFragment() : Fragment() {
         seekBar.max = data.numOfPoints - 1
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -70,7 +75,7 @@ class RunFragment() : Fragment() {
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
         val gpsTrackPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
 
-        val trackPlotPollThread: TrackPlotPollThread = TrackPlotPollThread(
+        trackPlotPollThread = TrackPlotPollThread(
             seekBar,
             tvPoint,
             tvAltitude,
@@ -80,6 +85,8 @@ class RunFragment() : Fragment() {
         )
         trackPlotPollThread.start()
 
+        val intentService: Intent = Intent(context,TrackPlayService::class.java)
+        context?.startForegroundService(intentService)
 
         //This is the listener for the play/pause button
         playPauseButton.setOnClickListener {
@@ -160,7 +167,7 @@ class RunFragment() : Fragment() {
     override fun onDestroyView() {
         Log.d(TAG, "RunFragment OnDestroyView")
         super.onDestroyView()
-        //trackPlotPollThread.interrupt()
+        trackPlotPollThread.interrupt()
     }
 
     override fun onResume() {
@@ -193,34 +200,6 @@ class RunFragment() : Fragment() {
             tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
             gpsTrackPlot.setCirclePoint(data.currentPoint)
             gpsTrackPlot.postInvalidate()
-        }
-    }
-
-    //This will launch a thread that polls every 100ms to get the current data from the Service and update the track plot view
-    // The updateTrackPosition has to be run on the UI thread. Otherwise it will crash
-    class TrackPlotPollThread(
-        private val seekBar: SeekBar,
-        private val tvPoint: TextView,
-        private val tvAltitude: TextView,
-        private val tvSpeed: TextView,
-        private val gpsTrackPlot: GPSTrackPlot,
-        private val activity: MainActivity
-    ) : Thread() {
-        override fun run() {
-            try {
-                while (true) {
-                    activity.runOnUiThread(Runnable {
-                        RunFragment().updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
-                    }
-                    )
-                    Thread.sleep(50)
-                    if (data.play) {
-                        data.currentPoint++
-                    }
-                }
-            } catch (e: InterruptedException) {
-                Log.d(TAG, "trackPlotWatchThread was interrupted")
-            }
         }
     }
 

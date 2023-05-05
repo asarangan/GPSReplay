@@ -52,12 +52,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //The track plot is created based on the data class during onStart (which comes after onCreateView). OnStart happens after onCreateView, and
 //the seekbar listener calls updateTrackPosition (which needs the track plot). But this is not a problem because by the time the user interacts
 //with the seekbar, onStart would have completed.
-//onCreateView of RunFragment also launches an instance of the TrackPlotPollThread nested class. This is a continuously running thread that will
+//onCreateView of RunFragment also launches an instance of the TrackPlotPollThread class. This is a continuously running thread that will
 //update the current position on the track plot every 100ms. The current position is incremented by the TrackPlayService. The TrackPlotPollThread
-//needs access to the updateTrackPosition function. Therefore, inside the updateTrackPosition function, a new instance of RUnFragment is created,
-//to access the updateTrackPosition function. This doesn't run onCreate, onStart etc.. because it is just a kotlin class.
+//needs access to the updateTrackPosition function. Therefore, inside the updateTrackPosition function, a new instance of RunFragment is created,
+//to access the updateTrackPosition function. This doesn't run onCreate, onStart etc.. because it is just a regular kotlin class. This function
+//also needs access to the main UI thread because the views cannot be modified by other threads. This is done by passing MainActivity().
+//When the RunFragment closes with onDestroyView, the TrackPlotPollThread is interrupted (stopped).
 //TrackPlayService:
-
+//This service runs in the background to increment the track counter and perform the mockGPS.
 
 
 
@@ -131,7 +133,6 @@ class MainActivity : AppCompatActivity() {
 //        stopService(runFragment.trackPlayServiceIntent)
         super.onDestroy()
     }
-
 
 
     private fun setFragment(fragment1: Fragment, fragment2: Fragment){
