@@ -28,9 +28,6 @@ class TrackPlotPollThread(
                 }
                 )
                 Thread.sleep(200)
-                if (data.play) {
-                    data.currentPoint++
-                }
             }
         } catch (e: InterruptedException) {
             Log.d(TAG, "trackPlotWatchThread was interrupted")

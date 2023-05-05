@@ -6,13 +6,13 @@ import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.RequiresApi
 import java.util.*
 
 class TrackPlayService : Service() {
-
-    var isServiceRunning: Boolean = false
 
     lateinit var locationManager: LocationManager
     lateinit var mockLocation: Location
@@ -20,36 +20,31 @@ class TrackPlayService : Service() {
     override fun onCreate() {
         Log.d(TAG, "TrackPlayService onCreate")
         super.onCreate()
-        startTrackPlayService()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "TrackPlayService onStartCommand")
-//        if (intent != null && intent.getAction().equals("mytest")) {
-//            startTrackPlayService()
-//        } else {
-//            stopTrackPlayService()
-//        }
+        val notification = TrackPlayServiceNotification().getNotification(applicationContext)
+        startForeground(1,notification)
+        Thread {
+            while (true) {
+                if (data.play) {
+                    data.currentPoint++
+                }
+                Thread.sleep(100)
+            }
+        }.start()
         return START_STICKY
     }
 
     override fun onDestroy() {
         Log.d(TAG, "TrackPlayService onDestroy")
-        isServiceRunning = false;
         super.onDestroy()
     }
 
-    inner class TrackPlayServiceBinder : Binder() {
-        fun getService(): TrackPlayService {
-            Log.d(TAG, "TrackPlayService getService")
-            return this@TrackPlayService
-        }
-    }
-
     override fun onBind(p0: Intent?): IBinder? {
-        Log.d(TAG, "TrackPlayService onBind")
-        val trackPlayServiceBinder: TrackPlayServiceBinder = TrackPlayServiceBinder()
-        return trackPlayServiceBinder
+        TODO("Not yet implemented")
     }
 
     fun startTrackPlayService() {
@@ -68,15 +63,6 @@ class TrackPlayService : Service() {
             }
         }.start()
     }
-
-
-    fun stopTrackPlayService() {
-        Log.d(TAG, "TrackPlayService stopTrackPlayService")
-        stopForeground(true)
-        stopSelf()
-        isServiceRunning = false
-    }
-
 
 
     private fun initGPS() {
