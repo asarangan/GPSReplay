@@ -124,16 +124,3 @@ class TrackPlayService : Service() {
         }
     }
 }
-
-//if (play && (numOfPoints > 0) && (index < numOfPoints - 1)) {
-//    while (play && (Date(trackpoints!![index + 1].epoch).time + deltaTime > System.currentTimeMillis())) {
-//    }
-//    if (play) {//We need to check play again because it might have changed during the above idle loop
-//        index += 1
-//        runOnUiThread() {
-//            updateDatafields()
-//            mockGPSdata(trackpoints!![index])
-//            if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
-//                seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
-//            }
-//        }
