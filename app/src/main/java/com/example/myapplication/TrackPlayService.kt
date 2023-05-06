@@ -30,7 +30,7 @@ class TrackPlayService : Service() {
         Thread {
             while (data.play) {
                 data.currentPoint++
-                Thread.sleep(100)
+                Thread.sleep(20)
             }
             stopForeground(STOP_FOREGROUND_REMOVE)
         }.start()

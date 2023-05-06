@@ -54,6 +54,8 @@ class RunFragment() : Fragment() {
         //set the length of the seek bar
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         seekBar.max = data.numOfPoints - 1
+        //set the color. This would be needed if we load a new file while the previous track is playing.
+        playPauseButtonColor()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

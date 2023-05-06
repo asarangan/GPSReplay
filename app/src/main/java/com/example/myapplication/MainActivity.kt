@@ -51,7 +51,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //listener) will also not do anything if the data class is empty.
 //The track plot is created based on the data class during onStart (which comes after onCreateView). OnStart happens after onCreateView, and
 //the seekbar listener calls updateTrackPosition (which needs the track plot). But this is not a problem because by the time the user interacts
-//with the seekbar, onStart would have completed.
+//with the seekbar, onStart would have completed. The track plot needs to be created in onStart (instead of onCreate) because during onCreateView
+//there would be no data in the data class. Similarly, the seekBar that was created during onCreateView would also contain no data. Therefore, in
+//onStart, the track plot is created and the seekBar length has to be set to the actual data length. Also, the play/pause color has to be set.
+//If a new data file is loaded while the old data file is running, that would result in the play color staying green.
 //onCreateView of RunFragment also launches an instance of the TrackPlotPollThread class. This is a continuously running thread that will
 //update the current position on the track plot every 100ms. The current position is incremented by the TrackPlayService. The TrackPlotPollThread
 //needs access to the updateTrackPosition function. Therefore, inside the updateTrackPosition function, a new instance of RunFragment is created,
