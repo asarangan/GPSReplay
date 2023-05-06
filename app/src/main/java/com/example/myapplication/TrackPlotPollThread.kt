@@ -9,6 +9,7 @@ import android.widget.TextView
 class TrackPlotPollThread(
     private val seekBar: SeekBar,
     private val tvPoint: TextView,
+    private val tvTime: TextView,
     private val tvAltitude: TextView,
     private val tvSpeed: TextView,
     private val gpsTrackPlot: GPSTrackPlot,
@@ -21,6 +22,7 @@ class TrackPlotPollThread(
                     RunFragment().updateTrackPosition(
                         seekBar,
                         tvPoint,
+                        tvTime,
                         tvAltitude,
                         tvSpeed,
                         gpsTrackPlot

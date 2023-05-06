@@ -31,8 +31,6 @@ class RunFragment() : Fragment() {
     private var param2: String? = null
     private lateinit var runFragmentView: View   //Need this in whole class because the layout is also needed in the onStart
     private lateinit var trackPlotPollThread: TrackPlotPollThread   //This is needed in the onCreateView and onDestroyView
-    //private lateinit var playPauseButton: Button //Need this in whole class because playPauseButtonColor is called from MainActivity
-    //private lateinit var gpsPlot: GPSTrackPlot //Need this in whole class because newTrackPlot is called from MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "RunFragment OnCreate")
@@ -71,6 +69,7 @@ class RunFragment() : Fragment() {
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         playPauseButtonColor()
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
+        val tvTime: TextView = runFragmentView.findViewById<TextView>(R.id.tvTime)
         val tvPoint: TextView = runFragmentView.findViewById<TextView>(R.id.tvPoint)
         val tvAltitude: TextView = runFragmentView.findViewById<TextView>(R.id.tvAltitude)
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
@@ -79,6 +78,7 @@ class RunFragment() : Fragment() {
         trackPlotPollThread = TrackPlotPollThread(
             seekBar,
             tvPoint,
+            tvTime,
             tvAltitude,
             tvSpeed,
             gpsTrackPlot,
@@ -123,7 +123,7 @@ class RunFragment() : Fragment() {
                     playPauseButtonColor()
                     //Move the current data position to the user selected point p1
                     data.currentPoint = p1
-                    updateTrackPosition(seekBar, tvPoint, tvAltitude, tvSpeed, gpsTrackPlot)
+                    updateTrackPosition(seekBar, tvPoint, tvTime, tvAltitude, tvSpeed, gpsTrackPlot)
                 }
             }
 
@@ -201,6 +201,7 @@ class RunFragment() : Fragment() {
     fun updateTrackPosition(
         seekBar: SeekBar,
         tvPoint: TextView,
+        tvTime: TextView,
         tvAltitude: TextView,
         tvSpeed: TextView,
         gpsTrackPlot: GPSTrackPlot
@@ -208,6 +209,7 @@ class RunFragment() : Fragment() {
         if (data.numOfPoints > 0) {
             seekBar.progress = data.currentPoint
             tvPoint.text = data.currentPoint.toString()
+            tvTime.text = Date(data.trackPoints[data.currentPoint].epoch).toString()
             tvAltitude.text = data.trackPoints[data.currentPoint].altitude.toFt().toString()
             tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
             gpsTrackPlot.setCirclePoint(data.currentPoint)
