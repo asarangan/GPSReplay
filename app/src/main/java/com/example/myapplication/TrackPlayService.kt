@@ -5,7 +5,6 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
-import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -26,23 +25,34 @@ class TrackPlayService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "TrackPlayService onStartCommand")
         val notification = TrackPlayServiceNotification().getNotification(applicationContext)
+        val gpsUpdateInterval:Int = 100 //Update every 100ms
+        var ticks:Int   //This is the counter to indicate how many 100ms intervals have lapsed between each GPS data
         startForeground(1, notification)
-        Thread {
-            trackPlayServiceIsRunning = true
+        Thread {    //This is the service thread
+            trackPlayServiceIsRunning = true    //Enable the status flag
             Log.d(TAG, "Track Play Service has been started")
             initGPS()
+            //This is the main loop. It runs while play is active, and the keep incrementing the stack pointer until we reach the last data point.
             while ((data.play) && (data.currentPoint < data.numOfPoints)) {
-                Log.d(
-                    TAG,
-                    "Waiting for ${Date(data.trackPoints[data.currentPoint + 1].epoch).time}"
-                )
-                while (Date(data.trackPoints[data.currentPoint + 1].epoch).time + data.deltaTime > System.currentTimeMillis()) {
+                //This loop waits until the current time (plus the offset) catches up with the time stamp of the next GPS point
+                //While we wait, we don't want the GPS data to show nothing. So we can keep transmitting the current GPS point every 100ms
+                val nextWayPointTime:Long = Date(data.trackPoints[data.currentPoint + 1].epoch).time + data.timeOffset
+                ticks = 1
+                while (nextWayPointTime > System.currentTimeMillis()) { //Wait loop
+                    if ((nextWayPointTime-System.currentTimeMillis())/gpsUpdateInterval > ticks){
+                        ticks++
+                        Log.d(TAG, "Point number: ${data.currentPoint}. System time: ${System.currentTimeMillis()}")
+                        mockGPSdata(data.trackPoints[data.currentPoint])
+                    }
                 }
-                Log.d(TAG, "${data.currentPoint.toString()} ${System.currentTimeMillis()}")
-                data.currentPoint++
-                mockGPSdata(data.trackPoints[data.currentPoint])
+                Log.d(TAG, "Point number: ${data.currentPoint}. System time: ${System.currentTimeMillis()}")
+                data.currentPoint++ //Increment the stack pointer
+                mockGPSdata(data.trackPoints[data.currentPoint])    //This is where we send the data to the GPS mock
             }
+            //The above loop ends when either the play becomes inactive (by user input via Seek Bar or Button), or we reach the end of the data
+            //Stop the service. This means, onDestroy of the service will get called.
             stopForeground(STOP_FOREGROUND_REMOVE)
+            //We also want to delete the location manager because leaving it hanging can cause problems with other apps
             deleteGPS()
             Log.d(TAG, "Track Play Service has been stopped")
             trackPlayServiceIsRunning = false
@@ -57,23 +67,6 @@ class TrackPlayService : Service() {
 
     override fun onBind(p0: Intent?): IBinder? {
         TODO("Not yet implemented")
-    }
-
-    fun startTrackPlayService() {
-        Log.d(TAG, "TrackPlayService startTrackPlayService")
-        initGPS()
-
-        Thread {
-            while (true) {
-                if ((data.play) && (data.currentPoint < data.numOfPoints)) {
-                    while (Date(data.trackPoints[data.currentPoint + 1].epoch).time + data.deltaTime > System.currentTimeMillis()) {
-                    }
-                    Log.d(TAG, "${data.currentPoint.toString()} ${System.currentTimeMillis()}")
-                    data.currentPoint++
-                    mockGPSdata(data.trackPoints[data.currentPoint])
-                }
-            }
-        }.start()
     }
 
 
@@ -111,7 +104,7 @@ class TrackPlayService : Service() {
         mockLocation.setAltitude(trackpoint.altitude)
         mockLocation.setSpeed(trackpoint.speed)
         mockLocation.setBearing(trackpoint.trueCourse)
-        mockLocation.setTime(trackpoint.epoch + data.deltaTime)
+        mockLocation.setTime(trackpoint.epoch + data.timeOffset)
         locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
     }
 

@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -87,21 +86,23 @@ class RunFragment() : Fragment() {
         )
         trackPlotPollThread.start()
 
-        val intentService: Intent = Intent(context,TrackPlayService::class.java)
+        val intentService: Intent = Intent(context, TrackPlayService::class.java)
 
         //This is the listener for the play/pause button
         playPauseButton.setOnClickListener {
             if (data.numOfPoints > 0) {
                 //Toggle the play/pause button
                 data.play = !data.play
-                //If play has been requested, wait until trackPlayService to stop and the flag to indicate correctly
-                //Stop/start in rapid succession could start a second service before the first one has stopped
+                //If we just switched play to inactive, wait until trackPlayService from the previous instance to stop and the status flag to
+                //indicate correctly before exiting this listener. If the play/pause button is pressed in quick succession it is possible to
+                //launch two service instances. We want to avoid that.
                 if (!data.play) {
-                    while (trackPlayServiceIsRunning){}
-                }
-                if (data.play) {
-                    //Calculate the delta time before starting
-                    data.deltaTime =
+                    while (trackPlayServiceIsRunning) {
+                    } //If play is inactive, wait until service is fully stopped
+                } else {   //If play is active, the launch the service
+                    //Calculate the delta time before starting. This is the time offset (in ms) between the current time and the time stamp
+                    //of the currently selected GPS data point
+                    data.timeOffset =
                         System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
                     context?.startForegroundService(intentService)
                 }
