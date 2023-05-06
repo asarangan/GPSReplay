@@ -92,11 +92,17 @@ class RunFragment() : Fragment() {
         //This is the listener for the play/pause button
         playPauseButton.setOnClickListener {
             if (data.numOfPoints > 0) {
-                data.deltaTime =
-                    System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
-                //Toggle the play/pause button color
+                //Toggle the play/pause button
                 data.play = !data.play
+                //If play has been requested, wait until trackPlayService to stop and the flag to indicate correctly
+                //Stop/start in rapid succession could start a second service before the first one has stopped
+                if (!data.play) {
+                    while (trackPlayServiceIsRunning){}
+                }
                 if (data.play) {
+                    //Calculate the delta time before starting
+                    data.deltaTime =
+                        System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
                     context?.startForegroundService(intentService)
                 }
                 //Set the play/pause button color
@@ -179,6 +185,8 @@ class RunFragment() : Fragment() {
     }
 
     override fun onDestroy() {
+        //Stop the service. This can be done by setting data.play = true
+        data.play = false
         super.onDestroy()
         Log.d(TAG, "RunFragment OnDestroy")
     }

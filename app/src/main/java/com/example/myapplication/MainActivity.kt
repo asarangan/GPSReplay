@@ -68,6 +68,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 const val TAG:String = "GPS"
 var data: Data = Data()   //This a global variable (currently empty) that can be read by the fragments and the service
+var trackPlayServiceIsRunning:Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -131,10 +132,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         Log.d(TAG, "Main Activity onDestroy")
-//        runFragment.trackPlayService.deleteGPS()
-//        unbindService(runFragment.serviceConnection)
-//        stopService(runFragment.trackPlayServiceIntent)
         super.onDestroy()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "Main Activity onStop")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "Main Activity onStart")
     }
 
 

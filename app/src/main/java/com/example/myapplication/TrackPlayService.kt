@@ -28,11 +28,24 @@ class TrackPlayService : Service() {
         val notification = TrackPlayServiceNotification().getNotification(applicationContext)
         startForeground(1, notification)
         Thread {
-            while (data.play) {
+            trackPlayServiceIsRunning = true
+            Log.d(TAG, "Track Play Service has been started")
+            initGPS()
+            while ((data.play) && (data.currentPoint < data.numOfPoints)) {
+                Log.d(
+                    TAG,
+                    "Waiting for ${Date(data.trackPoints[data.currentPoint + 1].epoch).time}"
+                )
+                while (Date(data.trackPoints[data.currentPoint + 1].epoch).time + data.deltaTime > System.currentTimeMillis()) {
+                }
+                Log.d(TAG, "${data.currentPoint.toString()} ${System.currentTimeMillis()}")
                 data.currentPoint++
-                Thread.sleep(20)
+                mockGPSdata(data.trackPoints[data.currentPoint])
             }
             stopForeground(STOP_FOREGROUND_REMOVE)
+            deleteGPS()
+            Log.d(TAG, "Track Play Service has been stopped")
+            trackPlayServiceIsRunning = false
         }.start()
         return START_STICKY
     }
@@ -92,7 +105,7 @@ class TrackPlayService : Service() {
         mockLocation.setAccuracy(5.0F)
     }
 
-    fun mockGPSdata(trackpoint: TrackPoint) {
+    private fun mockGPSdata(trackpoint: TrackPoint) {
         mockLocation.setLatitude(trackpoint.lat)
         mockLocation.setLongitude(trackpoint.lon)
         mockLocation.setAltitude(trackpoint.altitude)
@@ -103,19 +116,13 @@ class TrackPlayService : Service() {
     }
 
 
-    fun setData(data: Data) {
-        Log.d(TAG, "TrackPlayService setData")
-        //data = data.clone()
-    }
-
-    fun deleteGPS() {
+    private fun deleteGPS() {
         Log.d(TAG, "TrackPlayService deleteGPS")
         //val locationManager: LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         if (LocationManager.GPS_PROVIDER != null) {
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         }
     }
-
 }
 
 //if (play && (numOfPoints > 0) && (index < numOfPoints - 1)) {
