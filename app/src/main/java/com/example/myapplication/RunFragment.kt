@@ -86,7 +86,6 @@ class RunFragment() : Fragment() {
         trackPlotPollThread.start()
 
         val intentService: Intent = Intent(context,TrackPlayService::class.java)
-        context?.startForegroundService(intentService)
 
         //This is the listener for the play/pause button
         playPauseButton.setOnClickListener {
@@ -95,7 +94,9 @@ class RunFragment() : Fragment() {
                     System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
                 //Toggle the play/pause button color
                 data.play = !data.play
-                //trackPlayService.setData(data)
+                if (data.play) {
+                    context?.startForegroundService(intentService)
+                }
                 //Set the play/pause button color
                 playPauseButtonColor()
             }

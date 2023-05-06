@@ -26,14 +26,13 @@ class TrackPlayService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "TrackPlayService onStartCommand")
         val notification = TrackPlayServiceNotification().getNotification(applicationContext)
-        startForeground(1,notification)
+        startForeground(1, notification)
         Thread {
-            while (true) {
-                if (data.play) {
-                    data.currentPoint++
-                }
+            while (data.play) {
+                data.currentPoint++
                 Thread.sleep(100)
             }
+            stopForeground(STOP_FOREGROUND_REMOVE)
         }.start()
         return START_STICKY
     }
