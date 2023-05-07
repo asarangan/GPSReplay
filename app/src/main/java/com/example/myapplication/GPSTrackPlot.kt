@@ -6,9 +6,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 
-
 class GPSTrackPlot : View {
-
     constructor(context: Context) : super(context) {}
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
@@ -80,7 +78,6 @@ class GPSTrackPlot : View {
         yDataOffset = yDataPoints.minOf { it }
         xScale = width * 0.95F / (xDataPoints.maxOf { it } - xDataPoints.minOf { it })
         yScale = height * 0.95F / (yDataPoints.maxOf { it } - yDataPoints.minOf { it })
-        //Log.d(TAG,"Width = $width, Height=$height, xScale=$xScale, yScale=$yScale")
         val myCanvas = Canvas(bitmapObject)
         var myPixel: Pixel = toPixel(xDataPoints[0], yDataPoints[0])
         trackPath.moveTo(myPixel.x, myPixel.y) //shift origin to graph's origin
@@ -117,12 +114,13 @@ class GPSTrackPlot : View {
         super.onDraw(canvas)
         if (makeBitmap) {
             makeBitmap()
-            circleRadius = height / 100F  //This has to be set here because height and width become valid only in onDraw
+            circleRadius =
+                height / 100F  //This has to be set here because height and width become valid only in onDraw
             canvas?.drawBitmap(bitmapObject, 0F, 0F, null)
         }
 
         val myPixel: Pixel = toPixel(xDataPoints[circlePoint], yDataPoints[circlePoint])
-        Log.d(TAG,"X=${myPixel.x}, y=${myPixel.y}")
+        Log.d(TAG, "X=${myPixel.x}, y=${myPixel.y}")
         canvas?.drawCircle(myPixel.x, myPixel.y, circleRadius, circlePaint)
     }
 }

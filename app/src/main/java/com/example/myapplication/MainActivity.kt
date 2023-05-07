@@ -62,7 +62,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //also needs access to the main UI thread because the views cannot be modified by other threads. This is done by passing MainActivity().
 //When the RunFragment closes with onDestroyView, the TrackPlotPollThread is interrupted (stopped).
 //TrackPlayService:
-//This service runs in the background to increment the track counter and perform the mockGPS.
+//This service runs in the background to increment the track counter and perform the mockGPS operation. It is started from the button click listener
+//in RunFragment as a foreground service. During its onStartCommand, it spawns a new thread that continuously loops by incrementing the stack
+//pointer for the GPS track data, and passes it to the mockGPS function. This loop keeps listening to the data.play variable. When the user
+//disables play (on the RunFragment button), the loop ends and the service stops with stopForeground. There is also another boolean that is
+//set by TrackPlayService to indicate whether the service is running or stopped (trackPlayServiceIsRunning). This is checked by RunFragment
+//before a new service is launched to prevent duplicate services from running.
 
 
 
@@ -76,8 +81,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)
-
-        val trackPlayServiceIntent:Intent = Intent(this,TrackPlayService::class.java)
 
         val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment:RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
@@ -96,38 +99,11 @@ class MainActivity : AppCompatActivity() {
                     setFragment(runFragment, fileFragment)
                 }
                 R.id.itemRun -> {
-//                    if (data.numOfPoints > 0) {  //Points must be >0 in order to plot anything
-//                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
-//                        runFragment.playPauseButtonColor()
-//                        runFragment.newTrackPlot()
-////runFragment is called. The current point along the track has to be updated, and this is being done by recreating the whole plot.
-//                    }
-//                    else {  //If points are zero, then most likely no file has been read. Trackpoints would be uninitiated.
-//                        updateRunFragmentDisplay(data,findViewById<SeekBar>(R.id.seekBar),findViewById<TextView>(R.id.tvPoint),findViewById<TextView>(R.id.tvAltitude),findViewById<TextView>(R.id.tvSpeed))
-//                        runFragment.playPauseButtonColor()
-//                    }
                     setFragment(fileFragment,runFragment)
                 }
             }
             true
         }
-    }
-
-    fun updateRunFragmentDisplay(data:Data, seekBar:SeekBar, tvPoint:TextView, tvAltitude:TextView, tvSpeed:TextView){
-//        if (data.numOfPoints > 0){
-//            seekBar.max = data.numOfPoints-1
-//            seekBar.progress = data.currentPoint
-//            tvPoint.text = data.currentPoint.toString()
-//            tvSpeed.text = data.trackpoints[data.currentPoint].speed.toMph().toString()
-//            tvAltitude.text = data.trackpoints[data.currentPoint].altitude.toFt().toString()
-//        }
-//        else{
-//            seekBar.max = 0
-//            seekBar.progress = 0
-//            tvPoint.text = "-"
-//            tvSpeed.text = "-"
-//            tvAltitude.text = "-"
-//        }
     }
 
     override fun onDestroy() {
@@ -145,12 +121,10 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Main Activity onStart")
     }
 
-
     private fun setFragment(fragment1: Fragment, fragment2: Fragment){
         supportFragmentManager.beginTransaction().apply {
             hide(fragment1)
             show(fragment2)
-            //replace(R.id.frameLayout,fragment)
             commit()
         }
     }

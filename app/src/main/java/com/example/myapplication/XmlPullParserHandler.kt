@@ -1,7 +1,9 @@
 package com.example.myapplication
 
 import android.hardware.GeomagneticField
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -11,6 +13,7 @@ import java.lang.Math.PI
 import java.lang.Math.atan2
 import java.lang.Math.cos
 import java.lang.Math.sin
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -21,14 +24,16 @@ class XmlPullParserHandler() {
     //Return code to indicate whether conversion was successful
     var returnCode: Int = 0
 
-
     //This is the parser that processes the string that was read from the file
     fun parse(inputStream: InputStream?) {
         //Define the date format used by GPSLogger. Example: 2023-04-02T19:40:14Z. The X stands for time zone. SSS for fractional seconds
-        var simpleDateFormat: SimpleDateFormat = SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ssX",
-            Locale.US
+        val simpleDateFormats: ArrayList<SimpleDateFormat> = arrayListOf<SimpleDateFormat>(
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SX", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSX", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.US)
         )
+
         try {
             val factory = XmlPullParserFactory.newInstance()
             //Namespace allows the use of xmlns in the name tags
@@ -90,8 +95,16 @@ class XmlPullParserHandler() {
                             text.toFloat()
                         //If tag name is time, then that is the time in the format specified in simpledateformat
                         //The time tag is also in the header tags, but this will get saved in the initial TrackPoint instance and will be discarded when the new TrackPoint instance is created
+                        //We have several different time formats, varying in the number of decimal points for seconds. We will check them all.
                         tagName.equals("time", ignoreCase = true) -> {
-                            trackPoint.epoch = simpleDateFormat.parse(text).time
+                            for (i in 0 until simpleDateFormats.size) {
+                                try {
+                                    trackPoint.epoch = simpleDateFormats[i].parse(text).time
+                                }
+                                catch (e:ParseException){
+                                    //Log.d(TAG,"Error detecting ${simpleDateFormats[i]}")
+                                }
+                            }
                         }
                     }
                 }
@@ -125,7 +138,6 @@ class XmlPullParserHandler() {
             cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
         ) + 2.0 * PI) % (2.0 * PI)).toDeg().toFloat()
     }
-
 
 
 }
