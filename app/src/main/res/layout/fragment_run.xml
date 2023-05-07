@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RunFragment">
+    tools:context="org.sarangan.gpsreplay.RunFragment">
 
     <TextView
         android:id="@+id/tvPoint"
@@ -101,7 +101,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/textSpeed"
         app:layout_constraintStart_toStartOf="@+id/tvAltitude" />
 
-    <com.example.myapplication.GPSTrackPlot
+    <org.sarangan.gpsreplay.GPSTrackPlot
         android:id="@+id/cvGraph"
         android:layout_width="0dp"
         android:layout_height="0dp"

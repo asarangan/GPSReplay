@@ -1,17 +1,10 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.location.LocationManager
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
-import android.widget.SeekBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.myapplication.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 //Description of this program:
@@ -82,8 +75,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)
 
-        val fileFragment:FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
-        val runFragment:RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
+        val fileFragment: FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
+        val runFragment: RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
 
         //Next we will load both fragments, but only show the file fragment. This will trigger the onCreate of both fragments
         val qq = supportFragmentManager.beginTransaction()

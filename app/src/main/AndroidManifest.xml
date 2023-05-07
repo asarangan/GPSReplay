@@ -16,13 +16,13 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31" >
         <service
-            android:name=".TrackPlayService"
+            android:name="org.sarangan.gpsreplay.TrackPlayService"
             android:enabled="true"
             android:exported="true" >
         </service>
 
         <activity
-            android:name=".MainActivity"
+            android:name="org.sarangan.gpsreplay.MainActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

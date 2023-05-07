@@ -1,4 +1,4 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
 class Data {
 

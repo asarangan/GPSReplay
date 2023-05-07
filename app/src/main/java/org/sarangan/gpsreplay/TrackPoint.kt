@@ -1,4 +1,4 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
 import kotlin.math.PI
 

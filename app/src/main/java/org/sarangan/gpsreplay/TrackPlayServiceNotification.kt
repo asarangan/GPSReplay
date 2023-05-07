@@ -1,4 +1,4 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,6 +8,7 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.example.myapplication.R
 
 class TrackPlayServiceNotification() {
 

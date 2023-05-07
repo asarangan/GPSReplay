@@ -1,10 +1,11 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
 import android.net.Uri
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
+import com.example.myapplication.R
 import java.io.IOException
 import java.util.Date
 import kotlin.math.PI

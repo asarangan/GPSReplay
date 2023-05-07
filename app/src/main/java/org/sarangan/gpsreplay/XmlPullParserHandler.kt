@@ -1,9 +1,5 @@
-package com.example.myapplication
+package org.sarangan.gpsreplay
 
-import android.hardware.GeomagneticField
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
