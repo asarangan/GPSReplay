@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.myapplication.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 //Description of this program:
@@ -82,10 +81,9 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)
 
-        Settings.Secure.ALLOW_MOCK_LOCATION
-        if (!mockLocation.isMock()) {
+
             Toast.makeText(this,"Enable Developer Options and add this app (GPS Replay) to the Mock Location Apps",Toast.LENGTH_LONG).show()
-        }
+
 
         val fileFragment: FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment: RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function

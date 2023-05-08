@@ -13,7 +13,6 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.example.myapplication.R
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
