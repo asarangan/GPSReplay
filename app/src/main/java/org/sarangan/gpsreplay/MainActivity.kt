@@ -1,7 +1,13 @@
 package org.sarangan.gpsreplay
 
+import android.location.Location
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
@@ -70,10 +76,16 @@ var trackPlayServiceIsRunning:Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"MainActivity OnCreate")
         setContentView(R.layout.activity_main)
+
+        Settings.Secure.ALLOW_MOCK_LOCATION
+        if (!mockLocation.isMock()) {
+            Toast.makeText(this,"Enable Developer Options and add this app (GPS Replay) to the Mock Location Apps",Toast.LENGTH_LONG).show()
+        }
 
         val fileFragment: FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment: RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
