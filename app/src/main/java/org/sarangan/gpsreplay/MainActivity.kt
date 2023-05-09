@@ -82,9 +82,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-            Toast.makeText(this,"Enable Developer Options and add this app (GPS Replay) to the Mock Location Apps",Toast.LENGTH_LONG).show()
-
-
         val fileFragment: FileFragment = FileFragment()  //File fragment will read the file and load the content into the global variable data
         val runFragment: RunFragment = RunFragment()     //Run fragment will move through the data file and perform the mock GPS function
 
