@@ -120,7 +120,7 @@ class GPSTrackPlot : View {
         }
 
         val myPixel: Pixel = toPixel(xDataPoints[circlePoint], yDataPoints[circlePoint])
-        Log.d(TAG, "X=${myPixel.x}, y=${myPixel.y}")
+        //Log.d(TAG, "X=${myPixel.x}, y=${myPixel.y}")
         canvas?.drawCircle(myPixel.x, myPixel.y, circleRadius, circlePaint)
     }
 }

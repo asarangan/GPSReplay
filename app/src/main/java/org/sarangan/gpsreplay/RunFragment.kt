@@ -29,7 +29,8 @@ class RunFragment() : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var runFragmentView: View   //Need this in whole class because the layout is also needed in the onStart
+
+    //private lateinit var runFragmentView: View   //Need this in whole class because the layout is also needed in the onStart
     private lateinit var trackPlotPollThread: TrackPlotPollThread   //This is needed in the onCreateView and onDestroyView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +42,7 @@ class RunFragment() : Fragment() {
         }
     }
 
+    //onStart happens after onCreateView
     //During file open, both fragments will go into onStop. Then they resume with onStart.
     //In case the file has been just read (or new file), we need to create a new track plot, set the length of seekbar, and set the color of the play/pause
     override fun onStart() {
@@ -49,10 +51,10 @@ class RunFragment() : Fragment() {
         //Create a new track plot
         newTrackPlot()
         //set the length of the seek bar
-        val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
+        val seekBar: SeekBar = data.runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         seekBar.max = data.numOfPoints - 1
         //set the color. This would be needed if we load a new file while the previous track is playing.
-        playPauseButtonColor()
+        // playPauseButtonColor(playPauseButton)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -65,8 +67,9 @@ class RunFragment() : Fragment() {
 
 
         // Inflate the layout for this fragment
-        runFragmentView = inflater.inflate(R.layout.fragment_run, container, false)
+        val runFragmentView: View = inflater.inflate(R.layout.fragment_run, container, false)
         val playPauseButton: Button = runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+        data.runFragmentView = runFragmentView
         playPauseButtonColor()
         val seekBar: SeekBar = runFragmentView.findViewById<SeekBar>(R.id.seekBar)
         val tvTime: TextView = runFragmentView.findViewById<TextView>(R.id.tvTime)
@@ -75,15 +78,9 @@ class RunFragment() : Fragment() {
         val tvSpeed: TextView = runFragmentView.findViewById<TextView>(R.id.tvSpeed)
         val gpsTrackPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
 
-        trackPlotPollThread = TrackPlotPollThread(
-            seekBar,
-            tvPoint,
-            tvTime,
-            tvAltitude,
-            tvSpeed,
-            gpsTrackPlot,
-            MainActivity()
-        )
+
+        data.mainActivity = MainActivity()
+        trackPlotPollThread = TrackPlotPollThread()
         trackPlotPollThread.start()
 
         val intentService: Intent = Intent(context, TrackPlayService::class.java)
@@ -123,7 +120,7 @@ class RunFragment() : Fragment() {
                     playPauseButtonColor()
                     //Move the current data position to the user selected point p1
                     data.currentPoint = p1
-                    updateTrackPosition(seekBar, tvPoint, tvTime, tvAltitude, tvSpeed, gpsTrackPlot)
+                    updateTrackPosition()
                 }
             }
 
@@ -139,22 +136,21 @@ class RunFragment() : Fragment() {
     }
 
 
-    private fun playPauseButtonColor() {
-        val playPauseButton: Button =
-            runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
+    fun playPauseButtonColor() {
+        val button: Button = data.runFragmentView.findViewById<Button>(R.id.buttonPlayPause)
         if (data.play) {
-            playPauseButton.text = "Playing"
-            playPauseButton.setBackgroundColor(
+            button.text = "Playing"
+            button.setBackgroundColor(
                 ContextCompat.getColor(
-                    runFragmentView.context,
+                    data.runFragmentView.context,
                     R.color.myGreen
                 )
             )
         } else {
-            playPauseButton.text = "Paused"
-            playPauseButton.setBackgroundColor(
+            button.text = "Paused"
+            button.setBackgroundColor(
                 ContextCompat.getColor(
-                    runFragmentView.context,
+                    data.runFragmentView.context,
                     R.color.myRed
                 )
             )
@@ -162,7 +158,7 @@ class RunFragment() : Fragment() {
     }
 
     private fun newTrackPlot() {
-        val gpsPlot: GPSTrackPlot = runFragmentView.findViewById(R.id.cvGraph)
+        val gpsPlot: GPSTrackPlot = data.runFragmentView.findViewById(R.id.cvGraph)
         gpsPlot.setTrackData(data)
         gpsPlot.makeBitmap = true
         gpsPlot.setCirclePoint(data.currentPoint)
@@ -198,22 +194,25 @@ class RunFragment() : Fragment() {
     }
 
 
-    fun updateTrackPosition(
-        seekBar: SeekBar,
-        tvPoint: TextView,
-        tvTime: TextView,
-        tvAltitude: TextView,
-        tvSpeed: TextView,
-        gpsTrackPlot: GPSTrackPlot
-    ) {
+    fun updateTrackPosition() {
         if (data.numOfPoints > 0) {
-            seekBar.progress = data.currentPoint
-            tvPoint.text = data.currentPoint.toString()
-            tvTime.text = Date(data.trackPoints[data.currentPoint].epoch).toString()
-            tvAltitude.text = data.trackPoints[data.currentPoint].altitude.toFt().toString()
-            tvSpeed.text = data.trackPoints[data.currentPoint].speed.toMph().toString()
-            gpsTrackPlot.setCirclePoint(data.currentPoint)
-            gpsTrackPlot.postInvalidate()
+            data.runFragmentView.findViewById<SeekBar>(R.id.seekBar).progress = data.currentPoint
+            data.runFragmentView.findViewById<TextView>(R.id.tvPoint).text =
+                data.currentPoint.toString()
+            data.runFragmentView.findViewById<TextView>(R.id.tvTime).text =
+                Date(data.trackPoints[data.currentPoint].epoch).toString()
+            data.runFragmentView.findViewById<TextView>(R.id.tvAltitude).text =
+                data.trackPoints[data.currentPoint].altitude.toFt().toString()
+            data.runFragmentView.findViewById<TextView>(R.id.tvSpeed).text =
+                data.trackPoints[data.currentPoint].speed.toMph().toString()
+            data.runFragmentView.findViewById<GPSTrackPlot>(R.id.cvGraph)
+                .setCirclePoint(data.currentPoint)
+            data.runFragmentView.findViewById<GPSTrackPlot>(R.id.cvGraph).postInvalidate()
+            playPauseButtonColor()
+            if (!data.mockGPSEnabled) {
+                data.runFragmentView.findViewById<TextView>(R.id.tvMockGPSWarning).text =
+                    "Please Enable Developer Option and then Select Mock GPS Feature"
+            }
         }
     }
 
