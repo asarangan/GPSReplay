@@ -28,18 +28,20 @@ class TrackPlayService : Service() {
         val notification = TrackPlayServiceNotification().getNotification(applicationContext)
         val gpsUpdateInterval: Int = 100 //Update every 100ms
         var ticks: Int   //This is the counter to indicate how many 100ms intervals have lapsed between each GPS data
-        startForeground(1, notification)
-        Thread {    //This is the service thread
-            try {
-                initGPS()
-                trackPlayServiceIsRunning = true    //Enable the status flag
-                Log.d(TAG, "Track Play Service has been started")
-            } catch (e: SecurityException) {
-                data.play = false
-                data.mockGPSEnabled = false
-            }
 
+        try {   //If initGPS crashes, that means this app has not been added to the mock gps permission list
+            initGPS()
+            trackPlayServiceIsRunning = true    //Enable the status flag
+            startForeground(1, notification)    //Start foreground with notification
+            Log.d(TAG, "Track Play Service has been started")
+        } catch (e: SecurityException) {//if initGPS crashes because mock GPS has not been enabled, disable play and enable mockGPSEnabled.
+            data.play = false
+            data.mockGPSEnabled = false //This will trigger a message on the screen to enable mock GPS under updateTrackPosition in RunFragment
+        }
+
+        Thread {    //This is the service thread
             //This is the main loop. It runs while play is active, and the keep incrementing the stack pointer until we reach the last data point.
+            //If mock GPS was disabled, this loop won't run
             while ((data.play) && (data.currentPoint < data.numOfPoints)) {
                 //This loop waits until the current time (plus the offset) catches up with the time stamp of the next GPS point
                 //While we wait, we don't want the GPS data to show nothing. So we can keep transmitting the current GPS point every 100ms
@@ -67,11 +69,12 @@ class TrackPlayService : Service() {
             //Stop the service. This means, onDestroy of the service will get called.
             stopForeground(STOP_FOREGROUND_REMOVE)
             //We also want to delete the location manager because leaving it hanging can cause problems with other apps
+            //But delete it only if trackPlayService was running. If the loop didn't run because mockPGS was not enabled, deleteGPS will crash.
             if (trackPlayServiceIsRunning) {
                 deleteGPS()
+                Log.d(TAG, "Track Play Service has been stopped")
+                trackPlayServiceIsRunning = false
             }
-            Log.d(TAG, "Track Play Service has been stopped")
-            trackPlayServiceIsRunning = false
         }.start()
         return START_STICKY
     }
