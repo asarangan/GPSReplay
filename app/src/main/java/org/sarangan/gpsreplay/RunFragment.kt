@@ -13,6 +13,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import java.lang.Exception
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -101,7 +102,7 @@ class RunFragment() : Fragment() {
                     //of the currently selected GPS data point
                     data.timeOffset =
                         System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
-                    context?.startForegroundService(intentService)
+                        context?.startForegroundService(intentService)
                 }
                 //Set the play/pause button color
                 playPauseButtonColor()

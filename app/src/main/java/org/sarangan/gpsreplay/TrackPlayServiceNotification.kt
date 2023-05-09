@@ -24,8 +24,8 @@ class TrackPlayServiceNotification() {
 
         val aa: NotificationCompat.Builder =
             NotificationCompat.Builder(trackPlayContext, channelID)
-        aa.setContentTitle("GPS Replay")
-        aa.setContentText("Mock GPS is Running")
+        aa.setContentTitle("GPS Replay is Running")
+        //aa.setContentText("Mock GPS is Running")
         aa.setSmallIcon(R.drawable.gpsreplayservice)
         aa.priority = NotificationCompat.PRIORITY_HIGH
 

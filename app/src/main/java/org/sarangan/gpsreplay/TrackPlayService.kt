@@ -32,7 +32,7 @@ class TrackPlayService : Service() {
         try {   //If initGPS crashes, that means this app has not been added to the mock gps permission list
             initGPS()
             trackPlayServiceIsRunning = true    //Enable the status flag
-            startForeground(1, notification)    //Start foreground with notification
+            startForeground(1, notification)    //Start foreground with notification.
             Log.d(TAG, "Track Play Service has been started")
         } catch (e: SecurityException) {//if initGPS crashes because mock GPS has not been enabled, disable play and enable mockGPSEnabled.
             data.play = false
@@ -67,13 +67,13 @@ class TrackPlayService : Service() {
             }
             //The above loop ends when either the play becomes inactive (by user input via Seek Bar or Button), or we reach the end of the data
             //Stop the service. This means, onDestroy of the service will get called.
-            stopForeground(STOP_FOREGROUND_REMOVE)
             //We also want to delete the location manager because leaving it hanging can cause problems with other apps
-            //But delete it only if trackPlayService was running. If the loop didn't run because mockPGS was not enabled, deleteGPS will crash.
-            if (trackPlayServiceIsRunning) {
+            //But delete it only if mockGPS was enabled. If not, deleteGPS will crash.
+            if (data.mockGPSEnabled) {
                 deleteGPS()
                 Log.d(TAG, "Track Play Service has been stopped")
                 trackPlayServiceIsRunning = false
+                stopForeground(STOP_FOREGROUND_REMOVE)
             }
         }.start()
         return START_STICKY
