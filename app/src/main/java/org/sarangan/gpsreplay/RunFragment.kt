@@ -102,7 +102,7 @@ class RunFragment() : Fragment() {
                     //of the currently selected GPS data point
                     data.timeOffset =
                         System.currentTimeMillis() - Date(data.trackPoints[data.currentPoint].epoch).time
-                        context?.startForegroundService(intentService)
+                    context?.startForegroundService(intentService)
                 }
                 //Set the play/pause button color
                 playPauseButtonColor()

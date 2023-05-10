@@ -16,7 +16,7 @@ class TrackPlayServiceNotification() {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getNotification(trackPlayContext: Context): Notification {
+    fun getNotification(message:String, trackPlayContext: Context): Notification {
 
         (trackPlayContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
             NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH)
@@ -24,7 +24,7 @@ class TrackPlayServiceNotification() {
 
         val aa: NotificationCompat.Builder =
             NotificationCompat.Builder(trackPlayContext, channelID)
-        aa.setContentTitle("GPS Replay is Running")
+        aa.setContentTitle(message)
         //aa.setContentText("Mock GPS is Running")
         aa.setSmallIcon(R.drawable.gpsreplayservice)
         aa.priority = NotificationCompat.PRIORITY_HIGH

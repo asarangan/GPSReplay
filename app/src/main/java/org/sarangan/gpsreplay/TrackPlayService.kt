@@ -25,18 +25,21 @@ class TrackPlayService : Service() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "TrackPlayService onStartCommand")
-        val notification = TrackPlayServiceNotification().getNotification(applicationContext)
         val gpsUpdateInterval: Int = 100 //Update every 100ms
         var ticks: Int   //This is the counter to indicate how many 100ms intervals have lapsed between each GPS data
 
         try {   //If initGPS crashes, that means this app has not been added to the mock gps permission list
             initGPS()
             trackPlayServiceIsRunning = true    //Enable the status flag
+            val notification = TrackPlayServiceNotification().getNotification("GPS Replay is Running",applicationContext)
             startForeground(1, notification)    //Start foreground with notification.
             Log.d(TAG, "Track Play Service has been started")
         } catch (e: SecurityException) {//if initGPS crashes because mock GPS has not been enabled, disable play and enable mockGPSEnabled.
             data.play = false
             data.mockGPSEnabled = false //This will trigger a message on the screen to enable mock GPS under updateTrackPosition in RunFragment
+            val notification = TrackPlayServiceNotification().getNotification("Mock GPS is not enabled",applicationContext)
+            startForeground(1,notification)
+            Log.d(TAG, "Track Play Service Security Exception")
         }
 
         Thread {    //This is the service thread
@@ -73,8 +76,8 @@ class TrackPlayService : Service() {
                 deleteGPS()
                 Log.d(TAG, "Track Play Service has been stopped")
                 trackPlayServiceIsRunning = false
-                stopForeground(STOP_FOREGROUND_REMOVE)
             }
+            stopForeground(STOP_FOREGROUND_REMOVE)
         }.start()
         return START_STICKY
     }
@@ -94,11 +97,6 @@ class TrackPlayService : Service() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         mockLocation = Location(LocationManager.GPS_PROVIDER)
 
-        try {
-            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
         locationManager.addTestProvider(
             LocationManager.GPS_PROVIDER,
             false,
