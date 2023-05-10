@@ -31,21 +31,28 @@ class TrackPlayService : Service() {
         try {   //If initGPS crashes, that means this app has not been added to the mock gps permission list
             initGPS()
             trackPlayServiceIsRunning = true    //Enable the status flag
-            val notification = TrackPlayServiceNotification().getNotification("GPS Replay is Running",applicationContext)
+            val notification = TrackPlayServiceNotification().getNotification(
+                "GPS Replay is Running",
+                applicationContext
+            )
             startForeground(1, notification)    //Start foreground with notification.
             Log.d(TAG, "Track Play Service has been started")
         } catch (e: SecurityException) {//if initGPS crashes because mock GPS has not been enabled, disable play and enable mockGPSEnabled.
             data.play = false
-            data.mockGPSEnabled = false //This will trigger a message on the screen to enable mock GPS under updateTrackPosition in RunFragment
-            val notification = TrackPlayServiceNotification().getNotification("Mock GPS is not enabled",applicationContext)
-            startForeground(1,notification)
+            data.mockGPSEnabled =
+                false //This will trigger a message on the screen to enable mock GPS under updateTrackPosition in RunFragment
+            val notification = TrackPlayServiceNotification().getNotification(
+                "Mock GPS is not enabled",
+                applicationContext
+            )
+            startForeground(1, notification)
             Log.d(TAG, "Track Play Service Security Exception")
         }
 
         Thread {    //This is the service thread
             //This is the main loop. It runs while play is active, and the keep incrementing the stack pointer until we reach the last data point.
             //If mock GPS was disabled, this loop won't run
-            while ((data.play) && (data.currentPoint < data.numOfPoints)) {
+            while ((data.play) && (data.currentPoint < data.numOfPoints-1)) {
                 //This loop waits until the current time (plus the offset) catches up with the time stamp of the next GPS point
                 //While we wait, we don't want the GPS data to show nothing. So we can keep transmitting the current GPS point every 100ms
                 val nextWayPointTime: Long =
@@ -54,17 +61,9 @@ class TrackPlayService : Service() {
                 while (nextWayPointTime > System.currentTimeMillis()) { //Wait loop
                     if ((nextWayPointTime - System.currentTimeMillis()) / gpsUpdateInterval > ticks) {
                         ticks++
-                        Log.d(
-                            TAG,
-                            "Point number: ${data.currentPoint}. System time: ${System.currentTimeMillis()}"
-                        )
                         mockGPSdata(data.trackPoints[data.currentPoint])
                     }
                 }
-                Log.d(
-                    TAG,
-                    "Point number: ${data.currentPoint}. System time: ${System.currentTimeMillis()}"
-                )
                 data.currentPoint++ //Increment the stack pointer
                 mockGPSdata(data.trackPoints[data.currentPoint])    //This is where we send the data to the GPS mock
             }
@@ -73,6 +72,7 @@ class TrackPlayService : Service() {
             //We also want to delete the location manager because leaving it hanging can cause problems with other apps
             //But delete it only if mockGPS was enabled. If not, deleteGPS will crash.
             if (data.mockGPSEnabled) {
+                data.play = false
                 deleteGPS()
                 Log.d(TAG, "Track Play Service has been stopped")
                 trackPlayServiceIsRunning = false
