@@ -16,6 +16,10 @@ fun Float.toKts(): Float {
     return ((this * 19.4384).toInt() / 10.0).toFloat()
 }
 
+fun Float.toM():Float {
+    return (this * 180.0/PI * 60.0 * 1852.0).toFloat()
+}
+
 fun Float.toMph(): Float{
     return ((this * 22.3694).toInt() / 10.0).toFloat()
 }

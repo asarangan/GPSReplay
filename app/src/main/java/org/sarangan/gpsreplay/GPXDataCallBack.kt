@@ -1,10 +1,12 @@
 package org.sarangan.gpsreplay
 
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
+import java.io.BufferedReader
 import java.io.IOException
 import java.util.Date
 import kotlin.math.PI
@@ -27,10 +29,25 @@ class GPXDataCallBack(private val view: View) : ActivityResultCallback<Uri> {
         val tvDistance: TextView = view.findViewById<TextView>(R.id.tvDistance)
 
         if (result != null) {
-            val inputStream = view.context.contentResolver.openInputStream(result)
+            var inputStream = view.context.contentResolver.openInputStream(result)
+            val bufferedReader = BufferedReader(inputStream?.reader())
+            //Some GPX files do not contain a speed tag. If that is the case, we will have to calculate the speed.
+            var speedExists: Boolean = false
+            var line: String?
+            do {
+                line = bufferedReader.readLine()
+                if (line?.contains("<speed>",ignoreCase = true) == true){
+                    speedExists = true
+                    break
+                }
+            } while (line != null)
+            Log.d("MYCHECK", speedExists.toString())
+            //InputStream cannot be rewinded, so we will open it again
+            inputStream = view.context.contentResolver.openInputStream(result)
+
             try {
                 val parser = XmlPullParserHandler()
-                parser.parse(inputStream)
+                parser.parse(inputStream,speedExists)
                 data.trackPoints = parser.trackPoints
                 data.play = false
                 data.currentPoint = 0

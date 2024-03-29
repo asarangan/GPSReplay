@@ -5,13 +5,16 @@ import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import java.io.InputStream
-import java.lang.Math.PI
-import java.lang.Math.atan2
-import java.lang.Math.cos
-import java.lang.Math.sin
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.asin
+import kotlin.math.acos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.atan2
+import kotlin.math.PI
 
 class XmlPullParserHandler() {
     //Declare array of track points
@@ -21,7 +24,7 @@ class XmlPullParserHandler() {
     var returnCode: Int = 0
 
     //This is the parser that processes the string that was read from the file
-    fun parse(inputStream: InputStream?) {
+    fun parse(inputStream: InputStream?,speedExists:Boolean) {
         //Define the date format used by GPSLogger. Example: 2023-04-02T19:40:14Z. The X stands for time zone. SSS for fractional seconds
         val simpleDateFormats: ArrayList<SimpleDateFormat> = arrayListOf<SimpleDateFormat>(
             SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US),
@@ -45,12 +48,13 @@ class XmlPullParserHandler() {
             //Declare an initial instance of Trackpoint. This will be used to save the header tags, but will be disposed when the trkpt tag is encountered
             var trackPoint: TrackPoint = TrackPoint()
 
-            //This is the main loop. Keep reading until not end of the document is reached
+            //This is the main loop. Keep reading until end of the document
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 //Read the current tag name
                 val tagName: String? = parser.name
 
-                //If the tag is trkpt and it is the start tag, then read the lat & lon attribute of the trkpt tag. It will be like: <trkpt lat="39.58983167" lon="-84.22876667">
+                //If the tag is trkpt and it is the start tag, then create a new trackpoint and read the lat & lon attribute of the trkpt tag.
+                // It will be like: <trkpt lat="39.58983167" lon="-84.22876667">
                 if ((eventType == XmlPullParser.START_TAG) && (tagName.equals(
                         "trkpt",
                         ignoreCase = true
@@ -62,27 +66,14 @@ class XmlPullParserHandler() {
                     trackPoint.lon = parser.getAttributeValue(null, "lon").toDouble()
                 }
 
-                //If the event type is text (ie not the start tag, or end tag), then save this text for later processing
-                //When the tag closes in the next while loop iteration, we will need this information.
+                //If the event type is not the start tag or end tag (ie middle text), then save this text for processing in the subsequent while loop
+                //when the tag closes.
                 if (eventType == XmlPullParser.TEXT) {
                     text = parser.text
                 }
                 //If it is an end tag, then depending on which end tag it is, we do different things
                 if (eventType == XmlPullParser.END_TAG) {
                     when {
-                        //If it is the end of the trkpt tag, calculate true course from the last point in the stack, but only if the trackpoint stack if not empty.
-                        //If the track point stack if empty (ie this is the first point), then set the true course to 0
-                        tagName.equals("trkpt", ignoreCase = true) -> {
-                            val trueCourse: Float = if (trackPoints.size > 0) {
-                                trueCourse(trackPoints, trackPoint)
-                            } else {
-                                0.0F
-                            }
-                            //Save the true course into the track point instance
-                            trackPoint.trueCourse = trueCourse
-                            //Next, push the track point into the stack.
-                            trackPoints.add(trackPoint)
-                        }
                         //If tag name is ele, then that is the altitude.
                         tagName.equals("ele", ignoreCase = true) -> trackPoint.altitude =
                             text.toDouble()
@@ -101,6 +92,30 @@ class XmlPullParserHandler() {
                                     //Log.d(TAG,"Error detecting ${simpleDateFormats[i]}")
                                 }
                             }
+                        }
+                        //If it is the end of the trkpt tag, we are done reading the data point, so calculate true course from the last point in the stack,
+                        // but only if the trackpoint stack is not empty.
+                        //If the track point stack if empty (ie this is the first point), then set the true course to 0
+                        //If speedExists is false (ie the GPX file does not contain the <speed> tag, we need to calculate it
+                        tagName.equals("trkpt", ignoreCase = true) -> {
+                            val trueCourse: Float = if (trackPoints.size > 0) {
+                                trueCourse(trackPoints, trackPoint)
+                            } else {
+                                0.0F
+                            }
+                            //Save the true course into the track point instance
+                            trackPoint.trueCourse = trueCourse
+
+                            if (!speedExists) {
+                                val speed = if (trackPoints.size > 0) {
+                                    speed(trackPoints, trackPoint)
+                                } else {
+                                    0.0F
+                                }
+                                trackPoint.speed = speed
+                            }
+                            //Next, push the track point into the stack.
+                            trackPoints.add(trackPoint)
                         }
                     }
                 }
@@ -133,6 +148,26 @@ class XmlPullParserHandler() {
             sin(lon2 - lon1) * cos(lat2),
             cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
         ) + 2.0 * PI) % (2.0 * PI)).toDeg().toFloat()
+    }
+
+    //The following function calculate the speed between the current point being read, and the last point in the array.
+    //This calculation is being done before loading the current track point into the array.
+    //The speed (in m/s) is returned from the function
+    private fun speed(trackPoints: ArrayList<TrackPoint>, trackPoint: TrackPoint): Float {
+        val time2 = trackPoint?.epoch
+        val time1 = trackPoints[trackPoints.size - 1].epoch
+        //Longitude of the current track point
+        val lon2: Double = trackPoint?.lon.toRad()
+        //Longitude of the last track point in the array
+        val lon1: Double = trackPoints[trackPoints.size - 1].lon.toRad()
+        val lat2: Double = trackPoint?.lat.toRad()
+        val lat1: Double = trackPoints[trackPoints.size - 1].lat.toRad()
+        return (
+                (acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon1-lon2))
+                    /((time2-time1).toDouble()*1.0e-3)
+                        ).toFloat().toM()
+                )
+
     }
 
 

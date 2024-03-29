@@ -13,9 +13,9 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 //Description of this program:
-//The main screen contains two fragments - Run Fragment and File Fragment. These take up the whole screen. Each one is enabled and
-//disabled depending on the bottom navigation bar selection.
-//When the fragments are declared and attached to the layout (in MainActivity), the fragment life cycle is not initiated. But when the
+//The main screen contains two fragments - Run Fragment and File Fragment. When enabled, each fragment takes up the whole screen. Each one is
+// enabled and disabled depending on the bottom navigation bar selection.
+//When the fragments are declared and attached to the layout (in MainActivity), the fragment life cycle is not initiated.
 //Both fragments go through onCreate, onCreateView, onViewCreated, OnStart, onResume only when the MainActivity's onCreate exits.
 //In MainActivity, the RunFragment is hidden and only the FileFragment is shown. However, both would have gone through their whole
 //initiation lifecycle. The bottom navigation listener (which is also on the MainActivity) will show/hide the appropriate fragment.
@@ -24,12 +24,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //
 //FileFragment:
 //In FileFragment the fragment is inflated in onCreateView, and the OpenGPX File button is attached to a file opening function, with a
-// callback function. This callback function feeds the input file to the XML parser.
+//callback function. This callback function feeds the input file to the XML parser.
 //XML Parser:
 //The XML parser uses the parser factory to detect the various tags in the GPX file and load the data in the data class. It loads the GPS
 //coordinates, altitude, speed, true course, timestamp etc.. into a track points array inside the data class. It looks for the trkpt, ele,
-//speed, time tags. There are also some tags in the GPX header file that need to be ignored. The time must only contain integer seconds.
-//Fractional seconds are not allowed. The XML parser also has a true course calculator, which is not in the GPX file. The return from the
+//speed, time tags. There are also some tags in the GPX header file that need to be ignored. The acceptable time formats are listed in
+//simpleDateFormats in XMLParser. The XML parser also has a true course calculator, which is not in the GPX file. The return from the
 //XML parser is the track point array.
 //Callback function:
 //The callback function reads the track point array from the XML parser and puts it into the global data class. The callback function also displays
